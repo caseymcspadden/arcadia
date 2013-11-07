@@ -1,0 +1,133 @@
+{% set docroot = app.config('docroot') %}
+{% set loggedin = app.config('user').isLoggedIn() %}
+{% set isadmin = app.config('user').isAdmin() %}
+{% set isadvisor = app.config('user').isAdvisor() %}
+{% set isemployee = app.config('user').isEmployee() %}
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Arcadia Reports{% block title %}{% endblock %}</title>
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+	<META HTTP-EQUIV="Expires" CONTENT="-1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="{{docroot}}/css/normalize-css/normalize.css">
+	<link rel="stylesheet" href="{{docroot}}/css/main.css">
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+  {% block style %}
+  {% endblock %}
+ <script>  
+  var require = {
+	baseUrl: '{{docroot}}/js',
+
+  paths: {
+    jquery: 'libs/jquery/jquery-1.10.2',
+    jqueryui: 'libs/jquery/jquery-ui-1.10.3.custom',
+    underscore: 'libs/underscore/underscore-min',
+    backbone: 'libs/backbone/backbone',
+    text: 'libs/require/text'
+	
+	// storage has built in support for requirejs
+    // hence, it doesn't need to configured in 'shim'
+    //storage: 'libs/backbone/backbone.localStorage',    
+  },
+  shim: {
+  	underscore: {
+      exports: '_'
+    },
+    backbone: {
+      deps: [ 'underscore', 'jquery' ],
+      exports: 'Backbone'
+    },
+    jqueryui: {
+	    deps: ['jquery']
+    }
+  }  
+}
+</script>
+<script data-main="{{docroot}}/js/main.js" src="{{docroot}}/js/libs/require/require.js"></script>
+	{% block headscript %}
+	{% endblock %}
+</head>
+<body class="claro">
+<div class="body">
+	<div id="CRDocument">
+		<div id="CRHeader">
+			{% block header %}
+			{% endblock %}  
+		</div>
+		<div id="CRMainNav" class="CRNav">
+			<span class="CRFloatLeft">
+			{% block admin_nav %}
+			{% include "admin_nav.html" %}
+			{% endblock %}
+			</span>
+			<span class="CRFloatRight">
+			{% block nav %}
+			{% include "nav.html" %}
+			{% endblock %}
+			</span>
+		</div>
+		<div id="CRBody">
+			{% block body %}
+			{{docroot}}
+			{% endblock %}  
+		</div>
+		<div id="CRFooter">
+			{% block footer %}
+			deliverables for the advanced financial planner
+			{% endblock %}
+		</div>
+	</div>
+</div>
+<script>	
+require(['jquery','util/jquery-extensions', 'jqueryui'], function($) {
+$(function() {
+	$('#dialog-preferences').dialog({
+		title: 'Preferences',
+		autoOpen: false,
+		height: 200,
+		width: 350,
+		modal: true,
+		position: {my:"left top", at:"left bottom", of:'#buttonPreferences'},
+		buttons: {
+        "Submit": function() {
+						$.ajax({
+							url: require.toUrl('').replace(/\/js\//,'/api/preferences/default'),
+							type: 'PUT',
+							data: JSON.stringify($('#dialog-preferences form').serializeObject()),
+							contentType : 'application/json'
+					});
+        	$(this).dialog('close');
+        },
+        "Cancel":  function() {$(this).dialog('close');}
+			}
+   });
+   
+   $("#buttonPreferences").click(function() {
+   	$.ajax({
+	   	url: require.toUrl('').replace(/\/js\//,'/api/preferences'),
+	   	success: function(data) {
+		   	$('#preferences-duedays').val(data.duedays);
+		   	$('#preferences-reddays').val(data.reddays);
+		   	$('#preferences-feeddays').val(data.feeddays);
+		   	$('#dialog-preferences').dialog('open');
+	   	}
+   	});
+   });
+});
+});
+</script>
+{% block bodyscript %}
+{% endblock %}
+<div id='dialog-preferences' class="CRHidden">
+<form>
+<input type="hidden" name="name" value="default">
+<table>
+<tr><td><label for="preferences-duedays">Default days until plan is due</label></td><td><input type="text" id="preferences-duedays" name="duedays"></td></tr>
+<tr><td><label for="preferences-feeddays"></label>Number of days in feed</td><td><input type="text" id="preferences-feeddays" name="feeddays"></td></tr>
+<tr><td><label for="preferences-reddays">Days before due highlighted red</label></td><td><input type="text" id="preferences-reddays" name="reddays"></td></tr>
+</table>
+</form>
+</div>
+</body>
+</html>

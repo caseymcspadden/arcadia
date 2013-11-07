@@ -1,0 +1,9 @@
+{% if loggedin and isadmin %}
+<ul>
+<li {{page=="feed" ? "class=\"selected\"" : "" }} ><a href="{{docroot}}/admin/feed">dashboard</a></li>
+<li {{page=="plans" ? "class=\"selected\"" : "" }} ><a href="{{docroot}}/admin/plans">plans</a></li>
+<li {{page=="users" ? "class=\"selected\"" : "" }} ><a href="{{docroot}}/admin/users">users</a></li>
+<li {{page=="preferences" ? "class=\"selected\"" : "" }} ><a href="#" id="buttonPreferences">preferences</a></li>
+</ul>  	
+{% endif %}
+ 

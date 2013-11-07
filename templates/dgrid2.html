@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Tutorial: Defining grid structures</title>
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/dojo/1.9.0/dojo/resources/dojo.css" />
+	<link rel="stylesheet" href="./js/dgrid/css/dgrid.css" />
+	<link rel="stylesheet" href="./js/dgrid/css/skins/claro.css" />
+	<style>
+		#grid {
+			width: 1000px;
+			 margin: 10px;
+			}
+		.grid .dgrid-cell {
+			width: 80px;
+			}
+			.grid .field-first,
+		.grid .field-last {
+			width: 100px;
+		}
+ 
+		/*
+			For the columnset example, make each columnset occupy
+			half the total grid width.
+		*/
+		.grid .dgrid-column-set-cell {
+			width: 50%;
+		}
+	</style>
+	
+</head>
+
+<body class="claro">
+	<div class="grid" id="grid"></div>
+	
+	<script>
+		var dojoConfig;
+		(function(){
+			var baseUrl = location.pathname.replace(/\/[^/]+$/, "/js/");
+			dojoConfig = {
+				async: 1,
+				cacheBust: "1.8.3-0.3.6",
+				// Load dgrid and its dependencies from a local copy.
+				// If we were loading everything locally, this would not
+				// be necessary, since Dojo would automatically pick up
+				// dgrid, xstyle, and put-selector as siblings of the dojo folder.
+				packages: [
+					{ name: "dgrid", location: baseUrl + "dgrid" },
+					{ name: "xstyle", location: baseUrl + "xstyle" },
+					{ name: "put-selector", location: baseUrl + "put-selector" }
+				]
+			};
+		}());
+	</script>
+	<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.9.0/dojo/dojo.js"></script>
+	<script>
+		require([
+			"dojo/request",
+			"dojo/store/Memory",
+			"dgrid/OnDemandGrid",
+			"dojo/_base/declare",
+			"dgrid/ColumnSet"
+		], function (request, Memory, OnDemandGrid, declare, ColumnSet) {
+			request("hof-batting.json", {
+				handleAs: "json"
+			}).then(function (response) {
+				var CustomGrid = declare([OnDemandGrid, ColumnSet]),
+					grid = new CustomGrid({
+					showHeader: true,
+					store: new Memory({ data: response }),
+					 columnSets: [
+                    [
+                        [
+                            { field: "first", label: "First"},
+                            { field: "last", label: "Last" }
+                        ],
+                        [
+                            { field: "bats", label: "Bats" },
+                            { field: "throws", label: "Throws" }
+                        ]
+                    ], [
+                        [
+                            { field: "totalG", label: "G" },
+                            { field: "totalAB", label: "AB" },
+                            { field: "totalR", label: "R" },
+                            { field: "totalRBI", label: "RBI" },
+                            { field: "totalBB", label: "BB" },
+                            { field: "totalK", label: "K" }
+                        ],
+                        [
+                            { field: "totalGAB", label: "Games as Batter", colSpan: 2 },
+                            { field: "totalH", label: "H" },
+                            { field: "total2B", label: "2B" },
+                            { field: "total3B", label: "3B" },
+                            { field: "totalHR", label: "HR" }
+                        ]
+                    ]
+                ]
+                }, "grid");
+				grid.startup();
+			});
+		});
+	</script>
+</body>
+</html>

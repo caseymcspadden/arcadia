@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% set page = 'users' %}
+
+{% block body %}
+{% endblock %}  
+
+{% block bodyscript %}
+<script>
+ require(['views/users', 'models/user', 'collections/users', 'text!templates/users.html' ], function(UsersView, User, UserCollection, UsersTemplate){
+  $(function() {
+  	var collection = new UserCollection();
+  	collection.setDisplayFields([
+  		{field:'name', header:'Name'},
+  		{field:'user_type', header:'Type'},
+  		{field:'admin', header:'Admin'}
+  	]);
+  	    
+  	new UsersView({
+    	collection: collection,
+    	template: UsersTemplate,
+    	dialog: {id:'#dialog-users', height:275, newbutton:'#button-new-user', title:'New User'}
+		});
+  });
+});
+</script>
+{% endblock %}

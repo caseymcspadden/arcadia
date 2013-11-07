@@ -1,0 +1,10 @@
+{
+    "require": {
+        "slim/slim": "2.*",
+        "slim/extras": "*",
+        "twig/twig": "1.*",
+        "components/jquery": "1.9.*",
+        "components/backbone": "*",
+        "components/normalize.css": "2.*"
+    }
+}

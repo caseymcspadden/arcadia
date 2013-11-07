@@ -1,0 +1,37 @@
+<div id='grid-toolbar'>
+<div><button id='button-new-user'>New User</button></div>
+</div>
+<div id='gridheader'>
+<table>
+<thead></thead>
+</table>
+</div>
+<div id='gridbody'>
+<table>
+<tbody></tbody>
+</table>
+</div>
+
+<div id='dialog-users' class='CRHidden'>
+<form class='input-form'>
+<input type='hidden' name='_METHOD' value='POST'>
+<input type='hidden' name='id' value='0'>
+<table>
+<tbody>
+<tr id='row-name'><td><label for='users-name'>Name</label></td><td><input type='text' id='users-name' name='name' class='monitor'></td></tr>
+<tr id='row-username'><td><label for='users-username'>User Name</label></td><td><input type='text' id='users-username' name='username'></td></tr>
+<tr id='row-email'><td><label for='users-email'>Email</label></td><td><input type='text' id='users-email' name='email'></td></tr>
+<tr id='row-password'><td><label for='users-password'>Password</label></td><td><input type='password' id='users-password' name='password'></td></tr>
+<tr id='row-repeat_password'><td><label for='users-repeat_password'>Repeat Password</label></td><td><input type='password' id='users-repeat_password' name='repeat_password'></td></tr>
+<tr id='row-user_type'><td><label for='users-user_type'>Type</label></td>
+<td>
+<select name='user_type' class='monitor'>
+<option value='1'>Advisor</option>
+<option value='2'>Employee</option>
+</select>
+</td></tr>
+<tr id='row-admin'><td><label for='users-admin'>Admin</label></td><td><input type='checkbox' id='users-admin' name='admin'></td></tr>
+</tbody>
+</table>
+</form>
+</div>

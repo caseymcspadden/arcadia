@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block style %}
+<link rel="stylesheet" href="{{docroot}}/style/calendar.css" type="text/css">
+{% endblock %}
+
+{% block body %}
+ <div id="calendar">
+{% endblock %}
+{% block bodyscript %}
+<script>
+require(["app/CustomCalendar", "dojo/domReady!"], function(CustomCalendar) {
+
+var calendarOptions = {
+	id: "calendar",
+	eventUrl: "{{docroot}}/services/calendar/",
+	dateField: "due",
+	summaryText: "due",
+	displayTemplate: {title: "Plans due on #date#", row: "#advisor#, #preparer#, #plan#"},
+	displayOnHover: true,
+	exportUrl: "{{docroot}}/services/calendar.csv"
+};
+
+var calendar = new CustomCalendar(calendarOptions,"calendar");
+
+});
+</script>
+{% endblock %}

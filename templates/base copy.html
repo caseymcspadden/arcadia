@@ -1,0 +1,88 @@
+{% set docroot = app.config('docroot') %}
+{% set loggedin = app.config('user').isLoggedIn() %}
+{% set isadmin = app.config('user').isAdmin() %}
+{% set isadvisor = app.config('user').isAdvisor() %}
+{% set isemployee = app.config('user').isEmployee() %}
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Arcadia Reports{% block title %}{% endblock %}</title>
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+	<META HTTP-EQUIV="Expires" CONTENT="-1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/dojo/1.9.0/dijit/themes/claro/claro.css" media="screen">
+	<link rel="stylesheet" href="{{docroot}}/style/default.css" type="text/css">
+	<link rel="stylesheet" href="{{docroot}}/style/dojo.css" type="text/css">
+  {% block style %}
+  {% endblock %}
+   <script src="{{docroot}}/scripts/proto.js"></script>
+   <script>
+   var dojoConfig;
+		(function(){
+			//var baseUrl = location.pathname.replace(/\/[^/]+$/, "/scripts/");
+			var baseUrl = "{{docroot}}/scripts/";
+
+			dojoConfig = {
+				async: true,
+				cacheBust: "1.8.3-0.3.6",
+				parseOnLoad: false,
+				preferencesStorePath: "{{docroot}}/services/preferences/",
+				// Load dgrid and its dependencies from a local copy.
+				// If we were loading everything locally, this would not
+				// be necessary, since Dojo would automatically pick up
+				// dgrid, xstyle, and put-selector as siblings of the dojo folder.
+				packages: [
+					{ name: "dgrid", location: baseUrl + "dgrid" },
+					{ name: "xstyle", location: baseUrl + "xstyle" },
+					{ name: "put-selector", location: baseUrl + "put-selector" },
+					{ name: "app", location: baseUrl + "app" }
+				]
+			};
+		}());
+   </script>
+  {% block headscript %}
+  {% endblock %}
+</head>
+<body class="claro">
+<div class="body">
+	<script src="//ajax.googleapis.com/ajax/libs/dojo/1.9.0/dojo/dojo.js"></script>
+	<div id="CRDocument">
+		<div id="CRHeader">
+			{% block header %}
+			{% endblock %}  
+		</div>
+		<div id="CRMainNav" class="CRNav">
+			<span class="CRFloatLeft">
+			{% block admin_nav %}
+			{% include "admin_nav.html" %}
+			{% endblock %}
+			</span>
+			<span class="CRFloatRight">
+			{% block nav %}
+			{% include "nav.html" %}
+			{% endblock %}
+			</span>
+		</div>
+		<div id="CRBody">
+			{% block body %}
+			BODY
+			{% endblock %}  
+		</div>
+		<div id="CRFooter">
+			{% block footer %}
+			deliverables for the advanced financial planner
+			{% endblock %}
+		</div>
+	</div>
+</div>
+{% block bodyscript %}
+{% endblock %}
+<script>
+require(["dojo/_base/config", "dojo/store/Observable", "dojo/store/JsonRest", "dojo/domReady!"], function(config, Observable, JsonRest){
+	config["preferencesStore"] = new Observable(new JsonRest({target : config["preferencesStorePath"], handleAs: "json", idProperty: "name"}));
+	config["preferencesStore"].get().then(function(value) {config["preferences"]=value; console.log(value.duedays);});
+
+});
+</script>
+</body>
+</html>

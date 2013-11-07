@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% set page = 'feed' %}
+
+{% block body %}
+{% endblock %}  
+
+{% block bodyscript %}
+<script>
+require(['jquery','views/grid', 'collections/feed'], function($,GridView, FeedCollection){
+  $(function() {
+  	var collection = new FeedCollection();
+  	collection.setDisplayFields([
+  	{field:'updated_at', header:'Date/Time'},
+  	{field:'plan', header:'Plan'},
+  	{field:'due_date', header:'Due'},
+  	{field:'updater', header:'Action By'},
+  	{field:'actionname', header:'Action'},
+  	{field:'stage', header:'Stage'},
+  	{field:'comments', header:'Comments'}
+  	]); 
+    
+  	new GridView({
+    	collection: collection
+	});
+  
+  });
+});
+</script>
+{% endblock %}

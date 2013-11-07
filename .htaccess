@@ -1,0 +1,15 @@
+# DirectoryIndex index.php index.shtml index.html default.html
+# Use PHP5 Single php.ini as default
+# AddHandler application/x-httpd-php5s .php
+
+RewriteEngine On
+
+# Some hosts may require you to use the `RewriteBase` directive.
+# If you need to use the `RewriteBase` directive, it should be the
+# absolute physical path to the directory that contains this htaccess file.
+#
+# RewriteBase /home3/arcadib3/public_html/version2/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
+#RewriteRule !^js($|/) index.php [QSA,L]

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block style %}
+<link rel="stylesheet" href="{{docroot}}/scripts/apis/dgrid/css/dgrid.css" type="text/css"/>
+<link rel="stylesheet" href="{{docroot}}/scripts/apis/dgrid/css/skins/claro.css" type="text/css"/>
+<link rel="stylesheet" href="{{docroot}}/style/dgrid.css" type="text/css">
+{% endblock %}
+
+{% block body %}
+<div class="grid" id="grid"></div>
+{% endblock %}
+
+{% block bodyscript %}
+{{parent()}}
+<script>
+var withFiles = true;
+if (withFiles)
+		require(["dojo/_base/config", "dojo/store/Observable", "app/JsonRestWithFiles", "app/CustomGrid"], function(config, Observable, JsonRest, CustomGrid) {
+			var target = config["gridStore"].path;
+			var idProperty =  config["gridStore"].idProperty===undefined ? "id" : config["gridStore"].idProperty;
+			var sortParam = config["gridStore"].sortParam===undefined ? "sortBy" : config["gridStore"].sortParam;
+			//var store = new JsonRest({target : target, handleAs: "text", idProperty: idProperty, sortParam: sortParam});
+			var store = new Observable(new JsonRest({target : target, handleAs: "text", idProperty: idProperty, sortParam: sortParam}));
+			config["grid"] = new CustomGrid(store,config["gridStore"]);
+		});
+else
+		require(["dojo/_base/config", "dojo/store/Observable", "dojo/store/JsonRest", "app/CustomGrid"], function(config, Observable, JsonRest, CustomGrid) {
+			var target = config["gridStore"].path;
+			var idProperty =  config["gridStore"].idProperty===undefined ? "id" : config["gridStore"].idProperty;
+			var sortParam = config["gridStore"].sortParam===undefined ? "sortBy" : config["gridStore"].sortParam;
+			//var store = new JsonRest({target : target, handleAs: "text", idProperty: idProperty, sortParam: sortParam});
+			var store = new Observable(new JsonRest({target : target, handleAs: "text", idProperty: idProperty, sortParam: sortParam}));
+			config["grid"] = new CustomGrid(store,config["gridStore"]);
+		});
+</script>
+{% endblock %}

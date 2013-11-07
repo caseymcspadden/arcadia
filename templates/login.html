@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class = "CRLogin">
+<h1>Log In</h1>
+<form name="login" action="./" method="post">
+<input type="hidden" name="login" value="1">
+<p>user name<br>
+<input type="text" name="username" size="20"</p>
+<p>password<br>
+<input type="password" name="password" size="20"</p>
+<p><input type="submit" title="login" value="login" class="CRButton"></p>
+</form>
+</div>
+{% endblock %}

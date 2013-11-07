@@ -1,0 +1,19 @@
+<ul>
+
+{% if loggedin and (isadmin or isadvisor) %}
+<li><a href="{{docroot}}/advisor">advisor</a></li>
+{% endif %}
+
+{% if loggedin and (isadmin or isemployee)%}
+<li><a href="{{docroot}}/preparer">preparer</a></li>
+{% endif %}
+
+{% if loggedin and (isadmin or isemployee)%}
+<li><a href="{{docroot}}/calendar">calendar</a></li>
+{% endif %}
+
+{% if loggedin %}
+<li><a href="{{docroot}}/?logout=1">logout</a></li>
+{% endif %}
+
+</ul>

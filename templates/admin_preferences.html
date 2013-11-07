@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set page = 'preferences' %}
+
+{% block body %}
+    PREFERENCES
+{% endblock %}
+
+{% block bodyscript %}
+<script>
+require(["app/Counter"], function(Counter) {
+	Counter.increment();
+	console.log(Counter.getValue());
+
+});
+</script>
+{% endblock %}

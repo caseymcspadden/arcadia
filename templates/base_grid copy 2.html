@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block style %}
+<link rel="stylesheet" href="{{docroot}}/scripts/dgrid/css/dgrid.css" type="text/css"/>
+<link rel="stylesheet" href="{{docroot}}/scripts/dgrid/css/skins/claro.css" type="text/css"/>
+{% endblock %}
+
+{% block body %}
+<div class="grid" id="grid"></div>
+{% endblock %}
+
+{% block bodyscript %}
+<script>
+		require([
+			"dojo/request",
+			"dojo/store/Memory",
+			"dojo/store/JsonRest",
+			"dgrid/OnDemandGrid",
+			"dgrid/CellSelection",
+			"dgrid/extensions/ColumnResizer",
+			"dgrid/extensions/ColumnHider",
+			"dojo/_base/declare",
+			"dgrid/ColumnSet"
+		], function (request, Memory, JsonRest, OnDemandGrid, CellSelection, ColumnResizer, ColumnHider, declare, ColumnSet) {
+		
+			var store = new JsonRest({target : "{{docroot}}"+_gridStore.path , handleAs: "json", idProperty: "id", sortParam: "sortBy"});
+		
+			var CustomGrid = declare([OnDemandGrid,ColumnResizer,ColumnHider,CellSelection]);
+			
+			var columns = Array();
+			
+			for (i=0;i<_gridStore.columns.length;i++)
+			{
+				var field = _gridStore.columns[i].field;
+				var label = _gridStore.columns[i].label;
+				columns[i] = {
+							  	
+								  	field: field,
+								  	label: label,
+								  	renderHeaderCell: function(node) {
+									  	node.innerHTML = "<input type='checkbox' id='filter_" + this.field + "' name='filter_" + this.field + "'/>"+ this.label + " <span id='label_" + this.field + "' name='label_" + this.field + "'/>";
+							}
+						};
+				if (typeof(_gridStore.columns[i].get) !== undefined)
+					columns[i].get = _gridStore.columns[i].get;
+				if (typeof(_gridStore.columns[i].renderCell) !== undefined)
+					columns[i].renderCell = _gridStore.columns[i].renderCell;
+			}
+			
+			
+			var grid = new CustomGrid({
+					showHeader: true,
+					store: store,
+					selectionMode: "single",
+					columns: columns}, "grid");
+
+			grid.on("dgrid-select", function(event){
+				//console.log("Cell selected: ", event.cells[0].element);
+				console.log("Cell selected: ", event.cells[0].row);
+			});  
+			
+			grid.on("dgrid-columnstatechange", function(event){
+				//console.log("Cell selected: ", event.cells[0].element);
+				console.log(event.column.field + " " + event.hidden);
+			});
+			
+			console.log(document.cookie);	
+			    		
+		});
+</script>
+{% endblock %}

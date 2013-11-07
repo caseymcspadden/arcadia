@@ -1,0 +1,172 @@
+{% extends "base_grid.html" %}
+{% set page = 'plans' %}
+
+{% block body %}
+<div id="CRGridHeader">
+<div class="CRFloatLeft"><button type="button" id="CRNewButton" class="CRButton">New Plan</button></div><div class="CRFloatRight"><input id="CRShowHide" type="checkbox"/>show all plans</div>
+</div>
+{{ parent() }}
+{% endblock %}
+
+{% block bodyscript %}
+<script>
+require(["dojo/_base/config", "dojo/dom", "dojo/on", "dojo/query", "dojo/json", "dojo/request", "dojo/domReady!"], function(config,dom,on,query,json,request) {
+
+on(dom.byId("CRNewButton"), "click", function(event) {config["grid"].NewRow();});
+
+var actions = {};
+var stages = {};
+var parties = {};
+var plantypes = {};
+var employees = {};
+var advisors = {};
+
+var _allowedactions = {
+	0:[1],
+	1:[1],
+	2:[11,12,13,200,201,202,203,210,211],
+	3:[12,13,21,200,201,202,203,210,211],
+	4:[13,22,21,200,201,202,203,210,211],
+	5:[23,22,21,200,201,202,203,210,211],
+	126:[23,22,21,200,201,202,203,210,211],
+	127:[23,22,21,200,201,202,203,210,211]
+};
+
+//the stage of a plan after an action is selected
+var _actionstages = {11:3, 12:4, 13:5, 21:2, 22:3, 23:4, 126:126, 127:127};
+
+var _nowtime = (new Date()).getTime();
+
+request("{{docroot}}/services/actions/").then(function(obj) {arr = json.parse(obj); for(var i=0;i<arr.length;i++) actions[arr[i].id]=arr[i].selecttext;});
+request("{{docroot}}/services/stages/").then(function(obj) {arr = json.parse(obj); for(var i=0;i<arr.length;i++) stages[arr[i].id]=arr[i].name;});
+request("{{docroot}}/services/plantypes/").then(function(obj) {arr = json.parse(obj); for(var i=0;i<arr.length;i++) plantypes[arr[i].id]=arr[i].name;});
+request("{{docroot}}/services/parties/").then(function(obj) {arr = json.parse(obj); for(var i=0;i<arr.length;i++) parties[arr[i].id]=arr[i].name;});
+request("{{docroot}}/services/users/?user_type=1").then(function(obj) {arr = json.parse(obj); for(var i=0;i<arr.length;i++) advisors[arr[i].id]=arr[i].name;});
+request("{{docroot}}/services/users/?user_type=2").then(function(obj) {arr = json.parse(obj); for(var i=0;i<arr.length;i++) employees[arr[i].id]=arr[i].name;});
+
+config["gridStore"] = 
+{
+	path: "{{docroot}}/services/plans/",
+	domId: "grid",
+	columnClassPrefix: "plans",
+	sort : {field: "plan", descending: false},
+	renderRowxxx: function(row,args) {
+		var data = args[0];
+		if (data.stage==127 || data.stage==126 || data.stage==5)
+		{
+			row.className += " CRHide ";
+		}
+		
+		if (data.stage==127)
+			row.className += " CRClosed ";
+		else if (data.stage==126)
+			row.className += " CRSignedOff ";
+		else if (data.attention>0)
+			row.className += " CRAttention ";
+			
+		else
+		{  
+			var str = data.due_date;
+			var duetime = new Date(str.substr(0,4),parseInt(str.substr(5,2))-1,str.substr(8,2),str.substr(11,2),str.substr(14,2),str.substr(17,2));
+		
+			var diff = (duetime - _nowtime)/86400000; // = (24*60*60*1000) number of milliseconds in a day;
+	
+			if (diff < 0)
+				row.className += " CRPastDue ";
+			else if (diff <= 1)
+				row.className += " CRAlertDue ";
+		}
+	},
+	columns: [
+		
+		{field:"plan", label:"Plan", renderCellxxx: function(object,value,node,options) {
+			console.log(object);
+			//console.log(value);
+			//console.log(node);
+			//console.log(options);
+			node.innerHTML = "<div class=\"CRAttention\">" + value + "</div>";
+		}},
+		{field:"type", label:"Type", get: function(value) {return plantypes[value.type];}},
+		{field:"due_date", label:"Due to Advisor", formatter: "formatDate"},
+		{field:"office_due", label:"Home Office Due", formatter: "formatDate"},
+		{field:"idadvisor", label:"Advisor", get: function(value) {return advisors[value.idadvisor];}},
+		{field:"idemployee", label:"Preparer", get: function(value) {return employees[value.idemployee];}},
+		{field:"stage", label:"Stage", defaultValue:1, get: function(value) {return stages[value.stage];}},
+		{field:"lastadvisorcomments", label:"Flag",get: function(value) {return (value.lastadvisorcomments.length=="0" ? "" : "Y")}},
+		{field:"lastpreparercomments", label:"Comments", formatter: "formatComments"},
+		{field:"fee", label:"Fee"},
+		{field:"balance_due", label:"Balance"},
+		{field:"last_touched_by", label:"Last Touch", get: function(value) {return parties[value.last_touched_by];}},
+		{field:"data_request", label:"Req to Client", get: function(value) {return value.maxdr!=0 ? 'Y' : ''}},
+		{field:"data_received", label:"Data from Client", get: function(value) {return value.maxdcl!=0 ? 'Y' : ''}},
+		{field:"data_sent", label:"Data to Arcadia", get: function(value) {return value.maxdar!=0 ? 'Y' : ''}}
+	//	{field:"lastdate", label:"Last Activity", formatterxxx: "formatDate"},
+		],
+		dialogs: {
+		defaultDialog: {
+			id: "plans",
+			idField: "id",
+			titleField: "plan",
+			newTitle: "New Plan",
+			width: 400,
+			beforeSubmit: function(form) {
+				var action = form.elements["action"].value;
+				if (_actionstages[action] !== undefined)
+					form.elements["stage"].value = _actionstages[action];
+			},
+			elements: [
+				{field:"id", type: "hidden", value:0},
+				{field:"stage", type: "hidden", value:2},
+				{field:"action", label: "Action", type: "select", width: 200, initializer: function(e, data) {
+					e.removeOption(e.getOptions());
+					var arr = _allowedactions[data.stage!==undefined ? data.stage : 1];
+					for (var i=0;i<arr.length;i++)
+					{
+						e.addOption({value:arr[i], label:actions[arr[i]]});
+					}
+				},					
+				eventHandlers: {
+						"change" : function(value) {
+							console.log(value);
+							if (_actionstages[value] !== undefined)
+							{
+								console.log(_actionstages[value]);
+								this.formNodeValue("stage",_actionstages[value]);
+							}
+						}
+					}
+				},
+				{field:"plan",label: "Name",type: "text", value:"", size: 50, required: true, visibility:function(form) {return form.elementValue("action")==203;}, tooltip: "Last Name, First Name[s] e.g. Smith, Amy; Adams, Steve and Mary; Cooper, Mark and Faulkner, Beth"},
+				{field:"type", label: "Type", type: "select", width: 200, request: {target:"{{docroot}}/services/plantypes", value: "id", label: "name"}, visibility:function(form) {return form.elementValue("action")==211;}},
+				{field:"due_date",label: "Due Date",type: "date", value:"1999-01-01", size: 50, required: true, visibility:function(form) {return form.elementValue("action")==202;}, initializer: function(element,data) {
+					if (element.get("value") < (new Date(2000,0,1)))
+						element.set("value",new Date((new Date()).getTime() + parseInt(config["preferences"].duedays)*24*60*60*1000));
+				}},
+				{field:"office_due",label: "Office Due Date",type: "date", value:"1999-01-01", size: 50, required: true, visibility:function(form) {return form.elementValue("action")==210;}, initializer: function(element,data) {
+					if (element.get("value") < (new Date(2000,0,1)))
+						element.set("value",new Date((new Date()).getTime() + parseInt(config["preferences"].duedays)*24*60*60*1000));
+				}},
+								
+				{field:"idadvisor",label: "Advisor",type: "select", width: 200, request: {target:"{{docroot}}/services/users/?user_type=1", value: "id", label: "name"}, visibility:function(form) {return form.elementValue("action")==201;}},
+				{field:"idemployee",label: "Preparer",type: "select", width: 200, request: {target:"{{docroot}}/services/users/?user_type=2", value: "id", label: "name"}, visibility:function(form) {return form.elementValue("action")==200;}}
+			],
+			layoutxxx: "<div #group_action><div>#label_action<br>#markup_action</div></div>" +
+							"<div #group_plan><div>#label_plan<br>#markup_plan</div></div>" +
+							"<div #group_due_date><div>#label_due_date<br>#markup_due_date</div></div>" +
+							"<div #group_office_due><div>#label_office_due<br>#markup_office_due</div></div>" +
+							"<div #group_idadvisor><div>#label_idadvisor<br>#markup_idadvisor</div></div>" +
+							"<div #group_idemployee><div>#label_idemployee<br>#markup_idemployee</div></div>"
+		}
+	}
+};
+		
+		
+on(dom.byId("CRShowHide"), "click", function(event) {
+			var checked = dom.byId("CRShowHide").checked;
+			query(checked ? ".CRHide" : ".CRShow").forEach(function(node) {node.className = node.className.replace(checked ? "CRHide" : "CRShow",checked ? "CRShow" : "CRHide");});
+
+		});
+});
+</script>
+{{parent()}}
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block headscript %}
+
+{% endblock %}
+
+{% block body %}
+<div id="CRGridHeader">
+<div class="CRFloatLeft"><button type="button" class="CRButton" id="CRNewButton">New User</button></div>
+</div>
+{{ parent() }}
+{% endblock %}
+
+{% block bodyscript %}
+<script>
+require(["dojo/on","dojo/dom","dojo/_base/config","dojo/store/Observable", "app/JsonRestWithFiles", "app/CustomDialog", "dojo/domReady!"], function(on,dom,config,Observable,JsonRestWithFiles,CustomDialog) {
+
+var dialog=null
+
+var target = "{{docroot}}/services/documents/";
+var store = new Observable(new JsonRestWithFiles({target : target, handleAs: "text", idProperty: "id", sortParam: "sortBy"}));
+
+var dialogDef = {
+			id: "documents",
+			idField: "id",
+			titleField: "name",
+			newTitle: "New Document",
+			width: 400,
+			store: store,
+			elements: [
+				{field:"id", type: "hidden", value:1},
+				{field:"name",label: "Name",type: "text", value:"", size: 100, required: true, tooltip: "Name of user"},
+				{field:"username",label: "User Name",type: "text", value:"", size: 100, required: true, regexp:"^[\\S]*$"},
+				{field:"email",label: "Email",type: "email", value: "", size: 100},
+				{field:"password",label: "Password",type: "password", value: "", size: 100},
+				{field:"repeat_password",label: "Repeat Password",type: "password", value: "", size: 100},
+				{field:"admin",label: "Admin",type: "checkbox", value: false},
+				{field:"file",label: "Upload Files",type: "uploader", buttonText:"Click to select files to upload to Arcadia"}
+			],
+			layoutxxx: "<p>#label_name<br>#markup_name<p>#label_username<br>#markup_username<p>#markup_email<p>#markup_password<p>#markup_repeat_password<p>#markup_user_type<p>#markup_admin"
+		};
+		
+
+on(dom.byId("CRNewButton"), "click", function(event) {
+	require(["dojo/cookie"], function(cookie) {
+	if (dialog==null)
+		dialog = new CustomDialog(dialogDef);
+	dialog.Show(null);
+	})});
+});
+</script>
+{{parent()}}
+{% endblock %}

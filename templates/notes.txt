@@ -1,0 +1,110 @@
+Request URL:http://www.arcadiareports.com/version2/services/plans/?sortBy=+plan
+Request Method:GET
+Status Code:200 OK
+Request Headersview source
+Accept:application/javascript, application/json
+Accept-Encoding:gzip,deflate,sdch
+Accept-Language:en-US,en;q=0.8
+Connection:keep-alive
+Content-Type:application/x-www-form-urlencoded
+Cookie:uid=1-d151480899fc036d444940f0519595
+Host:www.arcadiareports.com
+Range:items=0-24
+Referer:http://www.arcadiareports.com/version2/admin/plans
+User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36
+X-Range:items=0-24
+X-Requested-With:XMLHttpRequest
+Query String Parametersview sourceview URL encoded
+sortBy: plan
+Response Headersview source
+Access-Control-Allow-Origin:*
+Connection:Keep-Alive
+Content-Range:items 0-24
+Content-Type:text/html; charset=utf-8
+Date:Fri, 05 Jul 2013 19:40:14 GMT
+Keep-Alive:timeout=10, max=7
+Server:Apache
+Transfer-Encoding:chunked
+
+
+
+Request URL:http://www.arcadiareports.com/version2/services/plans/?sortBy=+plan
+Request Method:GET
+Status Code:200 OK
+Request Headersview source
+Accept:application/javascript, application/json
+Accept-Encoding:gzip,deflate,sdch
+Accept-Language:en-US,en;q=0.8
+Connection:keep-alive
+Content-Type:application/x-www-form-urlencoded
+Cookie:uid=1-d151480899fc036d444940f0519595
+Host:www.arcadiareports.com
+Range:items=0-24
+Referer:http://www.arcadiareports.com/version2/admin/plans
+User-Agent:Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.116 Safari/537.36
+X-Range:items=0-24
+X-Requested-With:XMLHttpRequest
+Query String Parametersview sourceview URL encoded
+sortBy: plan
+Response Headersview source
+Access-Control-Allow-Origin:*
+Connection:Keep-Alive
+Content-Range:items 0-24
+Content-Type:text/html; charset=utf-8
+Date:Fri, 05 Jul 2013 19:44:22 GMT
+Keep-Alive:timeout=10, max=24
+Server:Apache
+Transfer-Encoding:chunked
+
+//returned from original
+filter: function (){
+forEach: function (){
+map: function (){
+observe: function (listener, includeObjectUpdates){
+__proto__: dojo.Deferred
+addCallbacks: function (callback, errback){
+callback: function (value){
+cancel: function (){
+errback: function (error){
+fired: 0
+ioArgs: Object
+isCanceled: function (){
+isFulfilled: function (){
+isRejected: function (){
+isResolved: function (){
+progress: function (update){
+promise: Promise
+reject: function (error){
+resolve: function (value){
+results: Array[2]
+then: function (/*Function?*/resolvedCallback, /*Function?*/errorCallback, /*Function?*/progressCallback){
+total: Promise
+__proto__: Object
+ JsonRest.js:196
+ 
+ 
+ //returned from with files
+ 
+ filter: function (){
+forEach: function (){
+map: function (){
+observe: function (listener, includeObjectUpdates){
+total: Promise
+__proto__: Promise
+cancel: function (reason, strict){
+isCanceled: function (){
+isFulfilled: function (){
+isRejected: function (){
+isResolved: function (){
+response: Promise
+then: function (callback, errback, progback){
+__proto__: Promise
+
+Doing a query JsonRest.js:159
+TMP {forEach: function, filter: function, map: function, promise: Promise, isResolved: function…}
+ JsonRest.js:199
+Doing a query JsonRest.js:159
+TMP {forEach: function, filter: function, map: function, promise: Promise, isResolved: function…}
+ JsonRest.js:199
+Range :items 0-24 JsonRest.js:194
+Range :items 0-24 JsonRest.js:194

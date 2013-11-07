@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% set page = 'users' %}
+
+{% block style %}
+<link rel="stylesheet" href="{{docroot}}/scripts/dgrid/css/dgrid.css" type="text/css"/>
+<link rel="stylesheet" href="{{docroot}}/scripts/dgrid/css/skins/claro.css" type="text/css"/>
+{% endblock %}
+
+{% block body %}
+<div class="grid" id="grid"></div>
+{% endblock %}
+
+{% block bodyscript %}
+<script>
+		require([
+			"dojo/request",
+			"dojo/store/Memory",
+			"dojo/store/JsonRest",
+			"dgrid/OnDemandGrid",
+			"dgrid/CellSelection",
+			"dgrid/extensions/CompoundColumns",
+			"dojo/_base/declare",
+			"dgrid/ColumnSet"
+		], function (request, Memory, JsonRest, OnDemandGrid, CellSelection, CompoundColumns, declare, ColumnSet) {
+		
+			var store = new JsonRest({target : "{{docroot}}/services/users/", handleAs: "json", idProperty: "id", sortParam: "sortBy"});
+		
+			var CustomGrid = declare([OnDemandGrid,CompoundColumns,CellSelection]);
+			
+			var grid = new CustomGrid({
+					showHeader: true,
+					store: store,
+					selectionMode: "single",
+					
+					columns: [
+						{
+							label: "", 
+							children: 
+							[
+								{
+									field: "name" , 
+									label: "Name"
+								}
+							],
+							renderHeaderCell: function(node) {
+								node.innerHTML = "<input type='checkbox' id='filter_name' name='filter_name'/><span id='label_name' name='label_name'/>";
+							}
+						},
+						{
+							label: "", 
+							children: 
+							[
+								{
+									field: "email", 
+									label: "Email"
+								}
+							],
+							renderHeaderCell: function(node) {
+								node.innerHTML = "<input type='checkbox'/>";
+							}
+						},
+						{
+							label: "", 
+							children: 
+							[
+								{
+									field: "typename", 
+									label: "Type"
+								}
+							],
+							renderHeaderCell: function(node) {
+								node.innerHTML = "<input type='checkbox'/>";
+							}
+						},
+						{
+							label: "", 
+							children: 
+							[
+								{
+									field: "admin", 
+									label: "Admin",
+									get: function(value) {
+										return value.admin.toUpperCase()=='X' ? "XXX" : "";
+									}
+								}
+							],
+							renderHeaderCell: function(node) {
+								node.innerHTML = "<input type='checkbox'/>";
+							}
+						}
+					]
+		        }, "grid");
+		        
+		  grid.on("dgrid-select", function(event){
+				//console.log("Cell selected: ", event.cells[0].element);
+				console.log("Cell selected: ", event.cells[0].row);
+			});      		
+		});
+</script>
+{% endblock %}
