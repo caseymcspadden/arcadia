@@ -6,7 +6,7 @@
 
 {% block bodyscript %}
 <script>
- require(['views/grid', 'collections/plans' ], function(GridView, PlanCollection){
+ require(['views/plans', 'collections/plans', 'text!templates/plans.html' ], function(PlanView, PlanCollection, PlansTemplate){
   $(function() {
   	var collection = new PlanCollection();
   	collection.setDisplayFields([
@@ -38,7 +38,7 @@
   	}).then($.ajax({url: require.toUrl('').replace(/\/js\//,'/api/stages'),
   		success: function(data) {
   			collection.addLookupTableFromArray('stages',data,'id','name');
-  		  	new GridView({collection: collection});
+  		  	new PlanView({collection: collection, template:PlansTemplate});
   		}
   	}));
   });

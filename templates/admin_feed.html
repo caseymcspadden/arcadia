@@ -6,7 +6,7 @@
 
 {% block bodyscript %}
 <script>
-require(['jquery','views/grid', 'collections/feed'], function($,GridView, FeedCollection){
+require(['jquery','views/feed', 'collections/feed', 'text!templates/feed.html'], function($,FeedView, FeedCollection, FeedTemplate){
   $(function() {
   	var collection = new FeedCollection();
   	collection.setDisplayFields([
@@ -19,8 +19,9 @@ require(['jquery','views/grid', 'collections/feed'], function($,GridView, FeedCo
   	{field:'comments', header:'Comments'}
   	]); 
     
-  	new GridView({
-    	collection: collection
+  	new FeedView({
+    	collection: collection,
+    	template: FeedTemplate
 	});
   
   });
