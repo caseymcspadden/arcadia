@@ -120,7 +120,7 @@ th.inner {
 	vertical-align: middle;
 }
 
-#gridheader th.inner span.resize {
+#gridheader th span.resize {
 	width: 3px;
 	height: inherit;
 	background-color: #666;

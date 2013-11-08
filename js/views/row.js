@@ -43,7 +43,7 @@ define([
     	var vals = this.model.toJSON();
 		var html='';
 		_.each(this.model.collection.displayFields, function(obj) {
-			html += '<td>' + this.model.collection.translate(obj.field,vals[obj.field]) + '</td>';
+			html += '<td class="field-' + obj.field +'">' + this.model.collection.translate(obj.field,vals[obj.field]) + '</td>';
 		},this);
       this.$el.html(html);
       //this.$el.html(this.template(this.model.toJSON()));
@@ -51,10 +51,10 @@ define([
       return this;
     },
 
-		click: function(e)
-		{
-			this.model.trigger('edit',{model:this.model, event:e, element:this.$el});
-		},
+	click: function(e)
+	{
+		this.model.trigger('edit',{model:this.model, field:$(e.target).attr('class').substr(6), event:e, element:this.$el});
+	},
    
     mouseEnter: function(e)
     {

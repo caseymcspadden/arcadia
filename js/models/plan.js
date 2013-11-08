@@ -16,7 +16,9 @@ define(['underscore', 'backbone', 'models/row'], function(_, Backbone, RowModel)
 	  data_acknowledged: 0,
 	  flagged: 0,
 	  attention: 0,
-	  active: 1	  
+	  active: 1,
+	  lastadvisorcomments: '',
+	  lastpreparercomments: ''  
      },
 
     initialize: function() {

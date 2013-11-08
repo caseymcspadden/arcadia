@@ -7,11 +7,11 @@ return GridView.extend( {
  	{
 	 	this.constructor.__super__.initialize.apply(this, [options]);
 	 	
-	 	this.listenTo(this,'initDialog',this.populateDialog)
+	 	this.listenTo(this,'launchDialog',this.launchDialog)
 		this.listenTo(this,'changeDialog',this.changeDialog)
  	},
  	
- 	populateDialog: function($dialog,data)
+ 	launchDialog: function($dialog,data)
  	{
  		$dialog.dialog('option','title',data.name);
 		var $form = $dialog.find('form');
@@ -20,7 +20,8 @@ return GridView.extend( {
 		$form.find('[name=username]').val(data.username || '');		
 		$form.find('[name=email]').val(data.email || '');		
 		$form.find('[name=user_type]').val(data.user_type || 1);		
-		$form.find('[name=admin]').prop('checked',data.admin);		
+		$form.find('[name=admin]').prop('checked',data.admin);
+		$dialog.dialog('open');	
  	},
  	
  	changeDialog: function($dialog, data)

@@ -14,13 +14,16 @@ return Backbone.View.extend({
     resizeElement: null,
     
     dialog: null,
+    
+    preferencesDialog: null,
             
     events:{
     	'change .monitor': 'contentChanged',
     	'click #gridheader table th': 'headerClick',
-    	'mousedown #gridheader table th span.resize': 'beginResize',
+    	'mousedown #gridheader table th.inner span.resize': 'beginResize',
     	'mouseup #gridheader,#gridbody': 'endResize',
-    	'mousemove #gridheader,#gridbody': 'mouseMove'
+    	'mousemove #gridheader,#gridbody': 'mouseMove',
+    	'click input.display-header-checkbox': 'displayHeader'
 	},
 
 	initialize: function(options) {
@@ -29,14 +32,14 @@ return Backbone.View.extend({
 		this.$head = this.$el.find('#gridheader thead');
 		this.$body = this.$el.find('#gridbody tbody');
 
-	 	if (options['dialog']!==undefined)
+	 	if (options.dialog!==undefined)
 	 	{
-	 		var def = options['dialog'];
+	 		var def = options.dialog;
 		 	
 	 		this.dialog = this.$el.find(def.id).dialog({
 				title: def.title || '',
 				autoOpen: false,
-				height: def.height || 250,
+				//height: def.height || 250,
 				width: def.width || 350,
 				modal: def.modal===undefined ? true : def.modal,
 				context: this,
@@ -45,23 +48,52 @@ return Backbone.View.extend({
 				buttons: {
 					"Submit": function() {
 						var collection = $(this).dialog('option','context').collection;
-						var data = $(this).find('form').serializeObject();
+						var data = collection.encode($(this).find('form').serializeObject());
 						if (data.id=='0')
 						{
+							console.log('creating');
+							console.log(data);
 							delete data.id;
 							collection.create(data);
 						}
 						else
 							collection.get(data.id).save(data);
 							$(this).dialog('close');
-					},
+						},
 					"Cancel":  function() {$(this).dialog('close');}
 					}
 			});
 			
 			this.events['click ' + def.newbutton]='newModel';
+			$(def.id + ' .date').datepicker();
 	 	}
     	
+    	if (options.preferencesButton!==undefined)
+	 	{
+			this.events['click ' + options.preferencesButton]='preferencesClicked';
+				 		
+	 		this.preferencesDialog = $("<div><p>Display Columns:</p><table><tbody></tbody></table></div>").dialog({
+				title: 'Display Preferences',
+				autoOpen: false,
+				//height: def.height || 250,
+				width: 350,
+				modal: false,
+				context: this,
+				appendTo: this.el,
+				position: {my:"left top", at:"left bottom", of:options.preferencesButton},
+				buttons: {
+					"Save":  function() {$(this).dialog('close');},
+					"Cancel":  function() {$(this).dialog('close');}
+					}
+			});
+			
+			_.each(this.collection.displayFields, function(item) {
+				var checked = true;
+				this.preferencesDialog.find('tbody').append($('<tr><td><input class="display-header-checkbox" type="checkbox" name="' + item.field + '"' + (checked ? ' checked' : '') + '></td><td>' + item.header + '</td></tr>'));
+			},this);
+			
+    	}
+
     	$('#gridbody').on('scroll', function () {
 			$('#gridheader').scrollLeft($(this).scrollLeft());
 		});
@@ -103,7 +135,7 @@ return Backbone.View.extend({
 			{
 				var obj = this.collection.displayFields[i];
 				var cls = (i<this.collection.displayFields.length-1 ? 'inner' : 'outer');
-				html += '<th class="' + cls + '" id="h1_' + obj.field + '">' + obj.header + ' <span class="sort"></span><span class="CRFloatRight resize"></span></th>';
+				html += '<th class="' + cls + '" id="h1_' + obj.field + '">' + obj.header + '<span class="sort"></span><span class="CRFloatRight resize"></span></th>';
 			}
 			html += '</tr>';
 			this.$head.html(html);
@@ -149,18 +181,19 @@ return Backbone.View.extend({
     	{
     		this.collection.sortAscending = true;
     		if (this.sortHeader)
-				this.$el.find('#h1_' + this.sortHeader +' span.sort').toggleClass('ui-icon ui-icon-triangle-1-n');
-				this.$el.find('#h1_' + selected + ' span.sort').toggleClass('ui-icon ui-icon-triangle-1-n');
+			this.$el.find('#h1_' + this.sortHeader +' span.sort').toggleClass('ui-icon ui-icon-triangle-1-n');
+			this.$el.find('#h1_' + selected + ' span.sort').toggleClass('ui-icon ui-icon-triangle-1-n');
 		}
 		this.sortHeader = selected;
-		//this.collection.comparator=this.sortHeader;
-		this.collection.fetch({reset:true, data:{'sortBy': (this.collection.sortAscending ? '+' : '-')+this.sortHeader}});
+		this.collection.sortField=this.sortHeader;
+		this.collection.sort();
+		//this.collection.fetch({reset:true, data:{'sortBy': (this.collection.sortAscending ? '+' : '-')+this.sortHeader}});
     },
     
     beginResize: function(e)
     {
     	var $headElement = $(e.target).parent();
-			this.resizeElement = {field: $headElement.attr('id').substr(3), origWidth: $headElement.width(), origX: e.pageX};
+		this.resizeElement = {field: $headElement.attr('id').substr(3), origWidth: $headElement.width(), origX: e.pageX};
     },
     
     endResize: function(e) 
@@ -184,14 +217,13 @@ return Backbone.View.extend({
 		}
 	},
 	
-	editModel: function(arg)  // arg is an object {element:el , model:mod, event:e} from collection's "edit" event
+	editModel: function(arg)  // arg is an object {element:el , field:field, model:mod, event:e} from collection's "edit" event
 	{
 		if (this.dialog!==null)
 		{
 			this.dialog.dialog('option','position',{my:'left top', at:'left bottom', of:arg.element});
 			var data = arg.model.toJSON();
-			this.trigger('initDialog',this.dialog,data);
-			this.dialog.dialog('open');
+			this.trigger('launchDialog',this.dialog,data,arg.field);
 		}
 	},
 
@@ -199,8 +231,7 @@ return Backbone.View.extend({
 	{
 		if (this.dialog!==null)
 		{
-			this.trigger('initDialog',this.dialog,{});
-			this.dialog.dialog('open');
+			this.trigger('launchDialog',this.dialog,{},'');
 		}
 	},
 	
@@ -208,6 +239,18 @@ return Backbone.View.extend({
 	{
 		$target = $(e.target);
 		this.trigger('changeDialog',this.dialog,{name:$target.attr('name'), value:$target.val()});
+	},
+	
+	preferencesClicked: function()
+	{
+		if (this.preferencesDialog!==null)
+			this.preferencesDialog.dialog('open');
+	},
+	
+	displayHeader: function(e)
+	{
+		var name = $(e.target).attr('name');
+		$('#h1_' + name +',#h2_'+name+',td.field-'+name).toggleClass('CRHidden');
 	}
 });
 });

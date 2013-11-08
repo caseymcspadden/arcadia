@@ -11,40 +11,10 @@ define (['jquery', 'underscore', 'backbone', 'views/grid', 'jqueryui', 'util/jqu
 
 return GridView.extend( {
 
- 	actions: [
- 		{id:1, name:'Open'},
- 		{id:10, name:'Data Gather complete'},
- 		{id:11, name:'Data Entry complete'},
- 		{id:12, name:'Analyze Goals Complete'},
- 		{id:13, name:'Write-up complete'},
- 		{id:20, name:'Back to Data Gather'},
- 		{id:21, name:'Back to Data Entry'},
- 		{id:22, name:'Back to Analyze Goals'},
- 		{id:23, name:'Back to Write-up'},
- 		{id:30, name:'Flag'},
- 		{id:31, name:'Resolve Flag'},
- 		{id:100, name:'Delete Plan'},
- 		{id:126, name:'Sign Off'},
- 		{id:127, name:'Close'},
- 		{id:200, name:'Change Preparer'},
- 		{id:201, name:'Change Advisor'},
- 		{id:202, name:'Change Due Date'},
- 		{id:203, name:'Rename'},
- 		{id:204, name:'Advisor Comment'},
- 		{id:205, name:'Preparer Comment'},
- 		{id:206, name:'Data request sent to client'},
- 		{id:207, name:'Data received from client'},
- 		{id:208, name:'Data sent to Arcadia'},
- 		{id:209, name:'Data received by Arcadia'},
- 		{id:210, name:'Change home office due date'},
- 		{id:211, name:'Change plan type'},
- 		{id:212, name:'Upload file to Arcadia'},
- 		{id:213, name:'Last touched by'},
- 		{id:230, name:'Payment received from client'},
- 		{id:231, name:'Change Fee'},
- 		{id:232, name:'Change Balance Due'}
- 	],
+ 	actions: null,
  	
+ 	users: null,
+ 	 	
  	allowedactions: {
 		0:[1],
 		1:[1],
@@ -56,24 +26,89 @@ return GridView.extend( {
 		127:[23,22,21,200,201,202,203,210,211,212]
 	},
 	
+	hintactions: {'due_date':202,'office_due':210,'idadvisor':201,'idemployee':200,'plan':203,'type':211},
+	
 	actionstages: {0:2, 1:2, 11:3, 12:4, 13:5, 21:2, 22:3, 23:4, 126:126, 127:127},
 
  	initialize: function(options)
  	{
 	 	this.constructor.__super__.initialize.apply(this, [options]);
 	 	
-	 	this.listenTo(this,'initDialog',this.populateDialog)
+	 	this.listenTo(this,'launchDialog',this.launchDialog)
 		this.listenTo(this,'changeDialog',this.changeDialog)
  	},
  	
- 	populateDialog: function($dialog,data)
+ 	launchDialog: function($dialog,data,field)
  	{
-
+ 		if (this.actions===null)
+ 		{
+ 			var that = this;
+ 			$.get(require.toUrl('').replace(/\/js\//,'/api/actions'), function(d) {that.actions={};_.each(d,function(item){that.actions[item['id']]=item['selecttext'];})}).
+ 				done(function() {$.get(require.toUrl('').replace(/\/js\//,'/api/users'), function(d) {
+ 					var $advisorDropdown = $dialog.find('[name=idadvisor]');
+ 					var $employeeDropdown = $dialog.find('[name=idemployee]');
+ 					_.each(d, function(item) {
+ 						$dropdown = item.user_type==1 ? $advisorDropdown : $employeeDropdown;
+	 					$dropdown.append($('<option value="'+item.id+'">' + item.name + '</option>'));
+	 				}); 		
+ 				}).
+ 				done(function() {that.initDialog($dialog,data,field);})});
+ 		}
+ 		else
+ 		{
+ 			console.log('data has been loaded');
+ 			this.initDialog($dialog,data,field);
+ 		}
  	},
  	
+ 	// this function won't be called unless data has been loaded
+ 	initDialog: function($dialog,data,field)
+ 	{
+ 		var $form = $dialog.find('form');
+ 		var $actionDropdown = $dialog.find('[name=idaction]');
+ 		$actionDropdown.find('option').remove();
+	 	var stage = data.stage || 0;
+		_.each(this.allowedactions[stage], function(action) {
+			$actionDropdown.append($('<option value="'+action+'">' + this.actions[action] + '</option>'));
+			
+		},this); 		
+		var action = this.hintactions[field] || this.allowedactions[stage][0];
+		
+		$actionDropdown.val(action);
+		$form.find('[name=id]').val(data.id || 0);
+		$form.find('[name=stage]').val(data.stage || 0);
+		$form.find('[name=plan]').val(data.plan || '');	
+		$form.find('[name=type]').val(data.type || 1);	
+		$form.find('[name=due_date]').val(data.due_date ? data.due_date.dashDateToSlashDate() : '01/01/2000');	
+		$form.find('[name=office_due]').val(data.office_due ? data.office_due.dashDateToSlashDate() : '01/01/2000');	
+	 	
+	 	if (data.idadvisor) $form.find('[name=idadvisor]').val(data.idadvisor);
+	 	if (data.idemployee) $form.find('[name=idemployee]').val(data.idemployee);
+	 	
+	 	$dialog.dialog('open');
+	 	this.changeDialog($dialog,{name:'idaction',value:action});
+	},
+	 	
  	changeDialog: function($dialog, data)
  	{
-	 	console.log(data.name + " " + data.value);
- 	} 		
+ 		if (data.name!='idaction')
+ 			return;
+ 			 		
+ 		var action = parseInt(data.value);
+ 
+ 		this.setVisibility($dialog.find('#row-plan'),_.contains([1,203],action));
+ 		this.setVisibility($dialog.find('#row-type'),_.contains([1,211],action));
+ 		this.setVisibility($dialog.find('#row-due_date'),_.contains([1,202],action));
+ 		this.setVisibility($dialog.find('#row-office_due'),_.contains([1,210],action));
+ 		this.setVisibility($dialog.find('#row-idadvisor'),_.contains([1,201],action));
+ 		this.setVisibility($dialog.find('#row-idemployee'),_.contains([1,200],action));
+ 		this.setVisibility($dialog.find('#row-comments'),_.contains([212],action));
+ 	},
+ 	
+ 	setVisibility: function($row,visible)
+ 	{
+	 	$row.removeClass('CRHidden');
+	 	if (!visible) $row.addClass('CRHidden');
+ 	}		
 });
 });
