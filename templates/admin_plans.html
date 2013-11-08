@@ -38,7 +38,11 @@
   	}).then($.ajax({url: require.toUrl('').replace(/\/js\//,'/api/stages'),
   		success: function(data) {
   			collection.addLookupTableFromArray('stages',data,'id','name');
-  		  	new PlanView({collection: collection, template:PlansTemplate});
+  		  	new PlanView({
+  		  		collection: collection, 
+  		  		template:PlansTemplate,
+  		  	  dialog: {id:'#dialog-plans', height:300, newbutton:'#button-new-plan', title:'New Plan'}
+  		  	});
   		}
   	}));
   });
