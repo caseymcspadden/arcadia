@@ -14,7 +14,7 @@ return GridView.extend( {
  	actions: null,
  	
  	users: null,
- 	 	
+ 	 	 	
  	allowedactions: {
 		0:[1],
 		1:[1],
@@ -56,7 +56,6 @@ return GridView.extend( {
  		}
  		else
  		{
- 			console.log('data has been loaded');
  			this.initDialog($dialog,data,field);
  		}
  	},

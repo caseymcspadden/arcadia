@@ -1,6 +1,6 @@
 // site/js/views/library.js
 
-define (['underscore', 'backbone', 'views/row', 'jqueryui'], function(_, Backbone, RowView) {
+define (['underscore', 'backbone', 'views/row', 'models/preferences', 'views/preferences', 'jqueryui', 'jquerycookie'], function(_, Backbone, RowView, preferences, PreferencesView) {
 
 return Backbone.View.extend({
     el: '#CRBody',
@@ -15,7 +15,17 @@ return Backbone.View.extend({
     
     dialog: null,
     
+    preferences: preferences,
+    
     preferencesDialog: null,
+    
+    displayColumnsDialog: null,
+    
+    today: new Date(),
+    
+    name: '',
+    
+    rowViews: [],
             
     events:{
     	'change .monitor': 'contentChanged',
@@ -23,13 +33,16 @@ return Backbone.View.extend({
     	'mousedown #gridheader table th.inner span.resize': 'beginResize',
     	'mouseup #gridheader,#gridbody': 'endResize',
     	'mousemove #gridheader,#gridbody': 'mouseMove',
-    	'click input.display-header-checkbox': 'displayHeader'
+    	'click input.display-header-checkbox': 'toggleColumnVisibility'
 	},
 
 	initialize: function(options) {
+		
+		this.name=options.name;
 		this.template = _.template(options.template);
-    	this.$el.html(this.template());
+    this.$el.html(this.template());
 		this.$head = this.$el.find('#gridheader thead');
+		this.$head2 = this.$el.find('#gridbody thead');
 		this.$body = this.$el.find('#gridbody tbody');
 
 	 	if (options.dialog!==undefined)
@@ -51,8 +64,6 @@ return Backbone.View.extend({
 						var data = collection.encode($(this).find('form').serializeObject());
 						if (data.id=='0')
 						{
-							console.log('creating');
-							console.log(data);
 							delete data.id;
 							collection.create(data);
 						}
@@ -68,28 +79,29 @@ return Backbone.View.extend({
 			$(def.id + ' .date').datepicker();
 	 	}
     	
-    	if (options.preferencesButton!==undefined)
+    	if (options.displayColumnsButton!==undefined)
 	 	{
-			this.events['click ' + options.preferencesButton]='preferencesClicked';
+			this.events['click ' + options.displayColumnsButton]='displayColumnsClicked';
 				 		
-	 		this.preferencesDialog = $("<div><p>Display Columns:</p><table><tbody></tbody></table></div>").dialog({
-				title: 'Display Preferences',
+	 		this.displayColumnsDialog = $("<div><p>Display Columns:</p><table><tbody></tbody></table></div>").dialog({
+				title: 'Display Columns',
 				autoOpen: false,
 				//height: def.height || 250,
 				width: 350,
 				modal: false,
 				context: this,
 				appendTo: this.el,
-				position: {my:"left top", at:"left bottom", of:options.preferencesButton},
+				position: {my:"left top", at:"left bottom", of:options.displayColumnsButton},
 				buttons: {
-					"Save":  function() {$(this).dialog('close');},
-					"Cancel":  function() {$(this).dialog('close');}
+					"Close":  function() {$(this).dialog('close');}
 					}
 			});
 			
+			var hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
+			
 			_.each(this.collection.displayFields, function(item) {
-				var checked = true;
-				this.preferencesDialog.find('tbody').append($('<tr><td><input class="display-header-checkbox" type="checkbox" name="' + item.field + '"' + (checked ? ' checked' : '') + '></td><td>' + item.header + '</td></tr>'));
+				var checked = !_.contains(hidden,item.field);
+				this.displayColumnsDialog.find('tbody').append($('<tr><td><input class="display-header-checkbox" type="checkbox" name="' + item.field + '"' + (checked ? ' checked' : '') + '></td><td>' + item.header + '</td></tr>'));
 			},this);
 			
     	}
@@ -97,13 +109,19 @@ return Backbone.View.extend({
     	$('#gridbody').on('scroll', function () {
 			$('#gridheader').scrollLeft($(this).scrollLeft());
 		});
-    	this.renderHead();
+    
+    var prefView = new PreferencesView({model:preferences});
+    console.log(prefView);
+    this.$el.find('#test').html(prefView.el);
+    
+    this.renderHead();
         
 		this.collection.fetch({reset: true}); // NEW
         
-		this.listenTo( this.collection, 'add', this.renderRow );
+		this.listenTo( this.collection, 'add', this.renderRows );
 		this.listenTo( this.collection, 'reset', this.renderRows );
-		this.listenTo( this.collection, 'sort', this.renderRows );
+		this.listenTo( this.collection, 'change', this.modelChanged );
+		//this.listenTo( this.collection, 'sort', this.sortRows );
 		this.listenTo( this.collection, 'edit', this.editModel );
 	},
     
@@ -125,7 +143,7 @@ return Backbone.View.extend({
 
     render: function() {
     	this.renderHead();
-		this.renderRows();
+			this.renderRows();
 	},
      
     renderHead: function()
@@ -139,10 +157,8 @@ return Backbone.View.extend({
 			}
 			html += '</tr>';
 			this.$head.html(html);
-    },
 
-    renderRows: function( item ) {
- 			var html='<tr>';
+ 			html='<tr>';
  			for (var i=0;i<this.collection.displayFields.length;i++)
  			{
 				var obj = this.collection.displayFields[i];
@@ -150,16 +166,69 @@ return Backbone.View.extend({
 				html += '<th class="' + cls + '" id="h2_' + obj.field + '"/>';
 			}
 			html += '</tr>'
-			this.$body.html( html ); 	  	
-			this.collection.each(function( item ) {
-            this.renderRow( item );
-			}, this );
+			this.$head2.html( html ); 	  	
     },
 
-    renderRow: function( item ) {
+    sortRows: function(item)
+    {
+    	console.log('sorting');
+	    this.renderRows(item);
+    },
+    
+    renderRows: function( item ) {
+    	_.each(this.rowViews, function(view) {
+	    	view.remove();
+    	})
+    	this.rowViews = [];
+    	
+			this.collection.each(function( item ) {
+      	this.renderRow( item );
+			}, this );
+			this.setColumnVisibility();
+    },
+    
+    modelChanged: function(model)
+   	{
+		 	var $row = this.$body.find('#row-' + model.cid);
+        
+			var hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
+
+			_.each(hidden,function(name) {
+					//this.$el.find('#row-'+item.cid+' td.field-'+name).addClass('CRHidden');
+					$row.find('td.field-'+name).addClass('CRHidden');
+			},this);   	
+		}, 
+
+		/*
+    addModel: function(item) {
         var rowView = new RowView({
             model: item
         });
+        this.$body.prepend( rowView.render().el );
+        
+        this.setColumnVisibility();
+        
+        var $row = this.$body.find('#row-' + item.cid);
+        
+				var hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
+				
+				
+				_.each(hidden,function(name) {
+					//this.$el.find('#row-'+item.cid+' td.field-'+name).addClass('CRHidden');
+					this.$el.find('td.field-'+name).addClass('CRHidden');
+					console.log(this.$el.find('#row-'+item.cid+' td.field-'+name));
+				},this);
+				
+    },
+		*/
+		
+    renderRow: function( item ) {
+        var rowView = new RowView({
+            model: item,
+            preferences: this.preferences,
+            today: this.today
+        });
+        this.rowViews.push(rowView);
         this.$body.append( rowView.render().el );
     },
     
@@ -187,6 +256,7 @@ return Backbone.View.extend({
 		this.sortHeader = selected;
 		this.collection.sortField=this.sortHeader;
 		this.collection.sort();
+		this.renderRows();
 		//this.collection.fetch({reset:true, data:{'sortBy': (this.collection.sortAscending ? '+' : '-')+this.sortHeader}});
     },
     
@@ -241,16 +311,32 @@ return Backbone.View.extend({
 		this.trigger('changeDialog',this.dialog,{name:$target.attr('name'), value:$target.val()});
 	},
 	
-	preferencesClicked: function()
+	displayColumnsClicked: function()
 	{
-		if (this.preferencesDialog!==null)
-			this.preferencesDialog.dialog('open');
+		if (this.displayColumnsDialog!==null)
+			this.displayColumnsDialog.dialog('open');
 	},
 	
-	displayHeader: function(e)
+	setColumnVisibility: function(hidden)
 	{
-		var name = $(e.target).attr('name');
-		$('#h1_' + name +',#h2_'+name+',td.field-'+name).toggleClass('CRHidden');
+		if (hidden===undefined)
+			hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
+		this.$el.find('#gridheader th,#gridbody th,#gridbody td').removeClass('CRHidden');
+		_.each(hidden,function(name) {
+				this.$el.find('#h1_' + name +',#h2_'+name+',td.field-'+name).addClass('CRHidden');
+		},this);
+	},
+
+	toggleColumnVisibility: function(e)
+	{
+		var hidden = [];
+		
+		$('.display-header-checkbox').each(function(i,item) {
+			if (!$(item).is(':checked'))
+				hidden.push($(item).attr('name'));
+		});
+		$.cookie(this.name,hidden.join('.'),{expires:365});
+		this.setColumnVisibility(hidden);
 	}
 });
 });

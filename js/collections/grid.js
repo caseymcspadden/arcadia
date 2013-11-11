@@ -5,7 +5,7 @@ define([
 
     return Backbone.Collection.extend({
     
-    	lookupTables: {},
+    lookupTables: {},
     
 		displayFields: [],
 		
@@ -19,7 +19,6 @@ define([
 				table[item[keyField]] = item[valueField];
 			});
 			this.lookupTables[name]=table;
-			console.log(this.lookupTables);
 		},
 
 		translate: function(key,value) {return value;},

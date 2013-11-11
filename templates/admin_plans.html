@@ -39,9 +39,11 @@
   		success: function(data) {
   			collection.addLookupTableFromArray('stages',data,'id','name');
   		  	new PlanView({
+  		  		name: 'admin_plans',
   		  		collection: collection, 
   		  		template:PlansTemplate,
   		  		dialog: {id:'#dialog-plans', width:410, newbutton:'#button-new-plan', title:'New Plan'},
+  		  		displayColumnsButton: "#display-columns",
   		  		preferencesButton: "#display-preferences"
   		  	});
   		}
