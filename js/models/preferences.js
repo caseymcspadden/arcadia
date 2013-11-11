@@ -1,9 +1,9 @@
 define(['underscore', 'backbone'], function(_, Backbone) {
   	preferences = Backbone.Model.extend({
-	    
+	       	 	
    	 	id: 'default',
    	 	
-   	 	url: require.toUrl('').replace(/\/js\//,'/api/preferences'),
+   	 	url: require.toUrl('').replace(/\/js\//,'/api/preferences/default'),
 	    
 	    defaults: {
 				duedays: 5,
@@ -12,6 +12,7 @@ define(['underscore', 'backbone'], function(_, Backbone) {
 			},
 
 			initialize: function() {
+				console.log("initializing");
 				this.fetch();			
 			}
   });

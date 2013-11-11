@@ -38,6 +38,15 @@ return GridView.extend( {
 		this.listenTo(this,'changeDialog',this.changeDialog)
  	},
  	
+ 	// called when application preferences have changed
+ 	preferencesChanged: function() {
+ 		console.log("preferences changed");
+ 		var today_milliseconds = this.today.getTime();
+ 		this.collection.each(function(item) {
+	    	console.log(((new Date(this.collection.translate('due_date',item.attributes.due_date))).getTime()-today_milliseconds)/86400000);;
+	    },this);
+ 	},
+ 	
  	launchDialog: function($dialog,data,field)
  	{
  		if (this.actions===null)

@@ -24,7 +24,14 @@ define([
       // and not by a user interaction from the DOM, the view
       // should remove itself
       //this.listenTo(this.model, 'destroy', this.remove);
-      //this.listenTo(this.preferences, 'change', this.preferencesChanges)
+      this.listenTo(this.model, 'change', this.modelChanged)
+    },
+    
+    modelChanged: function(model)
+    {
+	    this.$el.find('input[name=duedays]').val(model.get('duedays'));
+	    this.$el.find('input[name=feeddays]').val(model.get('feeddays'));
+	    this.$el.find('input[name=reddays]').val(model.get('reddays'));
     },
 
     // Re-render the contents of the todo item.

@@ -20,8 +20,11 @@ require(['jquery','views/feed', 'collections/feed', 'text!templates/feed.html'],
   	]); 
     
   	new FeedView({
-    	collection: collection,
-    	template: FeedTemplate
+	  	name: 'admin_feed',
+	  	collection: collection,
+    	template: FeedTemplate,
+  		displayColumnsButton: "#display-columns",
+  		preferencesButton: "#button-preferences"
 	});
   
   });

@@ -16,9 +16,12 @@
   	]);
   	    
   	new UsersView({
-    	collection: collection,
+  		name: 'admin_users',
+  		collection: collection,
     	template: UsersTemplate,
-    	dialog: {id:'#dialog-users', height:275, newbutton:'#button-new-user', title:'New User'}
+    	dialog: {id:'#dialog-users', height:275, newbutton:'#button-new-user', title:'New User'},
+  		displayColumnsButton: "#display-columns",
+  		preferencesButton: "#button-preferences"
 		});
   });
 });

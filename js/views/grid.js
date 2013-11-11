@@ -15,11 +15,13 @@ return Backbone.View.extend({
     
     dialog: null,
     
-    preferences: preferences,
+    preferences: preferences,     // Instantiated Preferences Model  
     
-    preferencesDialog: null,
+	preferencesView: null,        // preferences view contained in preferences dialog
+ 
+    preferencesDialog: null,      // number of days in feed, etc.
     
-    displayColumnsDialog: null,
+    displayColumnsDialog: null,   // which columns are hidden
     
     today: new Date(),
     
@@ -40,7 +42,7 @@ return Backbone.View.extend({
 		
 		this.name=options.name;
 		this.template = _.template(options.template);
-    this.$el.html(this.template());
+		this.$el.html(this.template());
 		this.$head = this.$el.find('#gridheader thead');
 		this.$head2 = this.$el.find('#gridbody thead');
 		this.$body = this.$el.find('#gridbody tbody');
@@ -97,7 +99,7 @@ return Backbone.View.extend({
 					}
 			});
 			
-			var hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
+			var hidden = (this.name===undefined || $.cookie(this.name)===undefined) ? [] : $.cookie(this.name).split('.');
 			
 			_.each(this.collection.displayFields, function(item) {
 				var checked = !_.contains(hidden,item.field);
@@ -105,16 +107,35 @@ return Backbone.View.extend({
 			},this);
 			
     	}
-
     	$('#gridbody').on('scroll', function () {
 			$('#gridheader').scrollLeft($(this).scrollLeft());
 		});
     
-    var prefView = new PreferencesView({model:preferences});
-    console.log(prefView);
-    this.$el.find('#test').html(prefView.el);
+		if (options.preferencesButton !== undefined)
+		{
+			var that = this;
+			this.preferencesView=new PreferencesView({model:preferences});
+			this.$el.find('#test').html(this.preferencesView.el);
+	 		this.preferencesDialog = $(this.preferencesView.el).dialog({
+				title: 'Preferences',
+				autoOpen: false,
+				//height: def.height || 250,
+				width: 350,
+				modal: true,
+				context: this,
+				appendTo: this.el,
+				position: {my:"left top", at:"left bottom", of:options.preferencesButton},
+				buttons: {
+					"Submit":  function() {that.preferences.save($(this).find('form').serializeObject());$(this).dialog('close');},
+					"Close":  function() {$(this).dialog('close');}
+					}
+			});
+			console.log(options.preferencesButton);
+			$(options.preferencesButton).click(function(e) {console.log(that);that.preferencesDialog.dialog('open');});
+			this.listenTo( this.preferences, 'change', this.preferencesChanged)
+		}
     
-    this.renderHead();
+		this.renderHead();
         
 		this.collection.fetch({reset: true}); // NEW
         
@@ -187,17 +208,22 @@ return Backbone.View.extend({
 			this.setColumnVisibility();
     },
     
+    preferencesChanged: function()
+    {
+    	console.log("preferences changed!");
+		
+    },
+    
     modelChanged: function(model)
    	{
-		 	var $row = this.$body.find('#row-' + model.cid);
+		var $row = this.$body.find('#row-' + model.cid);
         
-			var hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
+		var hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
 
-			_.each(hidden,function(name) {
-					//this.$el.find('#row-'+item.cid+' td.field-'+name).addClass('CRHidden');
-					$row.find('td.field-'+name).addClass('CRHidden');
-			},this);   	
-		}, 
+		_.each(hidden,function(name) {
+			$row.find('td.field-'+name).addClass('CRHidden');
+		},this);   	
+	}, 
 
 		/*
     addModel: function(item) {
@@ -224,9 +250,7 @@ return Backbone.View.extend({
 		
     renderRow: function( item ) {
         var rowView = new RowView({
-            model: item,
-            preferences: this.preferences,
-            today: this.today
+            model: item
         });
         this.rowViews.push(rowView);
         this.$body.append( rowView.render().el );
@@ -320,7 +344,7 @@ return Backbone.View.extend({
 	setColumnVisibility: function(hidden)
 	{
 		if (hidden===undefined)
-			hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
+			hidden = (this.name===undefined || $.cookie(this.name)===undefined) ? [] : $.cookie(this.name).split('.');
 		this.$el.find('#gridheader th,#gridbody th,#gridbody td').removeClass('CRHidden');
 		_.each(hidden,function(name) {
 				this.$el.find('#h1_' + name +',#h2_'+name+',td.field-'+name).addClass('CRHidden');

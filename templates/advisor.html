@@ -1,6 +1,53 @@
 {% extends "base.html" %}
-{% set page = 'advisor' %}
+{% set page = 'plans' %}
+
+{% block body %}
+{% endblock %}  
 
 {% block bodyscript %}
+<script>
+ require(['views/plans', 'collections/plans', 'text!templates/plans.html' ], function(PlanView, PlanCollection, PlansTemplate){
+  $(function() {
+  	var collection = new PlanCollection();
+  	collection.setDisplayFields([
+  	//{field:'doc_count', header:'Docs'},
+  	{field:'plan', header:'Plan'},
+  	{field:'type', header:'Type'},
+  	{field:'due_date', header:'Due to Advisor'},
+  	{field:'office_due', header:'Home Office Due'},
+  	{field:'idemployee', header:'Preparer'},
+  	{field:'stage', header:'Stage'},
+  	{field:'lastadvisorcomments', header:'Flag'},
+  	{field:'lastpreparercomments', header:'Comments'},
+  	{field:'fee', header:'Fee'},
+  	{field:'balance_due', header:'Balance'},
+  	{field:'last_touched_by', header:'Last Touch'},
+  	{field:'data_request', header:'Req to Client'},
+  	{field:'data_sent', header:'Data to Arcadia'}
+  	]); 
+    
+    collection.addLookupTableFromArray('plantypes',[{id:1,name:'FAL'},{id:2,name:'Navi'}],'id','name');
+    collection.addLookupTableFromArray('lasttouch',[{id:1,name:'Client'},{id:2,name:'Advisor'},{id:3,name:'Arcadia'}],'id','name');
+    
+  	$.ajax({
+  		url: require.toUrl('').replace(/\/js\//,'/api/users'),
+  		success: function(data) {
+  			collection.addLookupTableFromArray('users',data,'id','name');
+  		}
+  	}).then($.ajax({url: require.toUrl('').replace(/\/js\//,'/api/stages'),
+  		success: function(data) {
+  			collection.addLookupTableFromArray('stages',data,'id','name');
+  		  	new PlanView({
+  		  		name: 'admin_plans',
+  		  		collection: collection, 
+  		  		template:PlansTemplate,
+  		  		dialog: {id:'#dialog-plans', width:410, newbutton:'#button-new-plan', title:'New Plan'},
+  		  		displayColumnsButton: "#display-columns",
+  		  		preferencesButton: "#button-preferences"
+  		  	});
+  		}
+  	}));
+  });
+});
+</script>
 {% endblock %}
-

@@ -81,56 +81,7 @@
 		</div>
 	</div>
 </div>
-<script>	
-
-require(['jquery','util/jquery-extensions', 'jqueryui'], function($) {
-$(function() {
-	$('#dialog-preferences').dialog({
-		title: 'Preferences',
-		autoOpen: false,
-		height: 200,
-		width: 350,
-		modal: true,
-		position: {my:"left top", at:"left bottom", of:'#buttonPreferences'},
-		buttons: {
-        "Submit": function() {
-						$.ajax({
-							url: require.toUrl('').replace(/\/js\//,'/api/preferences/default'),
-							type: 'PUT',
-							data: JSON.stringify($('#dialog-preferences form').serializeObject()),
-							contentType : 'application/json'
-					});
-        	$(this).dialog('close');
-        },
-        "Cancel":  function() {$(this).dialog('close');}
-			}
-   });
-   
-   $("#buttonPreferences").click(function() {
-   	$.ajax({
-	   	url: require.toUrl('').replace(/\/js\//,'/api/preferences'),
-	   	success: function(data) {
-		   	$('#preferences-duedays').val(data.duedays);
-		   	$('#preferences-reddays').val(data.reddays);
-		   	$('#preferences-feeddays').val(data.feeddays);
-		   	$('#dialog-preferences').dialog('open');
-	   	}
-   	});
-   });
-});
-});
-</script>
 {% block bodyscript %}
 {% endblock %}
-<div id='dialog-preferences' class="CRHidden">
-<form>
-<input type="hidden" name="name" value="default">
-<table>
-<tr><td><label for="preferences-duedays">Default days until plan is due</label></td><td><input type="text" id="preferences-duedays" name="duedays"></td></tr>
-<tr><td><label for="preferences-feeddays"></label>Number of days in feed</td><td><input type="text" id="preferences-feeddays" name="feeddays"></td></tr>
-<tr><td><label for="preferences-reddays">Days before due highlighted red</label></td><td><input type="text" id="preferences-reddays" name="reddays"></td></tr>
-</table>
-</form>
-</div>
 </body>
 </html>
