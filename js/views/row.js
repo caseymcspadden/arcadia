@@ -53,6 +53,7 @@ define([
 
 	click: function(e)
 	{
+		console.log(e);
 		this.model.trigger('edit',{model:this.model, field:$(e.target).attr('class').substr(6), event:e, element:this.$el});
 	},
    
