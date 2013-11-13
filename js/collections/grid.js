@@ -5,7 +5,13 @@ define([
 
     return Backbone.Collection.extend({
     
-    lookupTables: {},
+    	initialize: function(options)
+		{
+	 		if (options!==undefined && options.url !== undefined)
+	 			this.url = options.url;
+		},
+		
+    	lookupTables: {},
     
 		displayFields: [],
 		

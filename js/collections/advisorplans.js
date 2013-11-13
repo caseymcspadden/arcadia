@@ -8,7 +8,7 @@ define([
 
     // Reference to this collection's model.
     model: Plan,
-    url: require.toUrl('').replace(/\/js\//,'/api/plans'),
+    url: require.toUrl('').replace(/\/js\//,'/api/advisorplans'),
     translate: function(key,value) {
 	    if (key=='type' && this.lookupTables['plantypes'] !== undefined)
 	    	return this.lookupTables['plantypes'][value] || '';
@@ -22,14 +22,12 @@ define([
 			return value.dashDateToSlashDate();
 	    if (key=='waiting_on' && this.lookupTables['parties'] !== undefined)
 	    	return this.lookupTables['parties'][value];
-	    if (key=='lastadvisorcomments')
-	    	return value.length>0 ? 'Y' : '';
 	    if (key=='data_request' || key=='data_sent')
 	    	return value=='0000-00-00' ? '' : value.dashDateToSlashDate();
 	    if (key=='lastpreparercomments')
 	    {
 	    	var comments = value.split('\n'); 
-	    	return (comments.length>0 ? comments[comments.length-1] : '');	
+	    	return comments[comments.length-1];
 	    }	
 	    return value;
     },

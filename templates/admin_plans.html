@@ -27,8 +27,8 @@
   	{field:'data_sent', header:'Data to Arcadia'}
   	]); 
     
-    collection.addLookupTableFromArray('plantypes',[{id:1,name:'FAL'},{id:2,name:'Navi'}],'id','name');
-    collection.addLookupTableFromArray('lasttouch',[{id:1,name:'Client'},{id:2,name:'Advisor'},{id:3,name:'Arcadia'}],'id','name');
+    collection.addLookupTableFromArray('plantypes',[{id:1,name:'Letter'},{id:2,name:'NaviPlan'},{id:3,name:'Confident Retirement'}],'id','name');
+    collection.addLookupTableFromArray('parties',[{id:1,name:'Client'},{id:2,name:'Advisor'},{id:3,name:'Arcadia'}],'id','name');
     
   	$.ajax({
   		url: require.toUrl('').replace(/\/js\//,'/api/users'),

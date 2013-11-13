@@ -280,7 +280,7 @@ class Services {
 
 	protected function get_plans($conn,$args,$params,$post)
 	{
-		$result = $conn->query("SELECT id, plan, due_date, office_due, active, type, fee, balance_due, last_touched_by, doc_count, attention, idadvisor, idemployee, stage, data_request, data_received, data_sent, data_acknowledged, lastadvisorcomments, lastpreparercomments from view_plans WHERE active<>0".
+		$result = $conn->query("SELECT id, plan, due_date, office_due, active, type, fee, balance_due, waiting_on, doc_count, attention, idadvisor, idemployee, stage, data_request, data_received, data_sent, data_acknowledged, lastadvisorcomments, lastpreparercomments from view_plans WHERE active<>0".
 				$this->params_to_sql($args,$params));	
 		return $this->fetch_rows($result,$args);	
 	}
@@ -290,11 +290,11 @@ class Services {
 		foreach ($post AS $k=>$v)
 		//$this->_app->getLog()->debug("$k = $v");	
 		$ret = "{}";
-		$last_touched_by = isset($post["last_touched_by"]) ? $post["last_touched_by"] : 1;
+		$waiting_on = isset($post["waiting_on"]) ? $post["waiting_on"] : 1;
 		$fee = isset($post["fee"]) ? $post["fee"] : 0;
 		$balance_due = isset($post["balance_due"]) ? $post["balance_due"] : 0;
 		
-		$stmt = $conn->prepare("INSERT into plans (name, type, due, office_due, idemployee, idadvisor, stage, last_touched_by, fee, balance_due, data_request, data_received, data_sent, data_acknowledged, flagged, attention, active) VALUES (?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,1)"); 
+		$stmt = $conn->prepare("INSERT into plans (name, type, due, office_due, idemployee, idadvisor, stage, waiting_on, fee, balance_due, data_request, data_received, data_sent, data_acknowledged, flagged, attention, active) VALUES (?,?,?,?,?,?,?,?,?,?,0,0,0,0,0,0,1)"); 
 	  	
 	  $stmt->bind_param("sissiiiidd", 
 	  	$post["plan"],
@@ -304,7 +304,7 @@ class Services {
 	  	$post["idemployee"],
 	  	$post["idadvisor"],
 	  	$post["stage"],
-	  	$last_touched_by,
+	  	$waiting_on,
 	  	$fee,
 	  	$balance_due
 	  );
@@ -361,7 +361,7 @@ class Services {
 			case 203: $planupdates['name'] = $changes['name'] = $post['plan']; break; //"203","renamed","Rename"
 			case 210: $planupdates['office_due'] = $changes['office_due'] = $post['office_due']; break; //"210","change home office due date","Change home office due date"
 			case 211: $planupdates['type'] = $changes['type'] = $post['type']; break; //"211","changed plan type","Change plan type"
-			case 213: $planupdates['last_touched_by'] = $changes['last_touched_by'] = $post['last_touched_by']; break; //"213","changed last touched by","Last touched by"
+			case 213: $planupdates['waiting_on'] = $changes['waiting_on'] = $post['waiting_on']; break; //"213","changed last touched by","Last touched by"
 			case 231: $planupdates['fee'] = $changes['fee'] = $post['fee']; break; //"231","change fee","Change Fee"
 			case 232: $planupdates['balance_due'] = $changes['balance_due'] = $post['balance_due']; break; //"232","change balance due","Change Balance Due"
 			case 206: $planupdates['data_request'] = 1; $planupdates['data_received'] = 0; break;//"206","data request to client","Data request sent to client "
@@ -415,7 +415,7 @@ class Services {
 		$params["idadvisor"] = $user->getId();
 		return $this->get_plans($conn,$args,$params,$post);
 	
-	//	$result = $conn->query("SELECT id, plan, due_date, office_due, active, type, fee, balance_due, last_touched_by, attention, idadvisor, idemployee, stage, data_request, data_received, data_sent, lastadvisorcomments, lastpreparercomments from view_plans WHERE active<>0".
+	//	$result = $conn->query("SELECT id, plan, due_date, office_due, active, type, fee, balance_due, waiting_on, attention, idadvisor, idemployee, stage, data_request, data_received, data_sent, lastadvisorcomments, lastpreparercomments from view_plans WHERE active<>0".
 		//		" AND idadvisor=" . $user->getId() . 
 			//	$this->params_to_sql($args,$params));	
 		//return $this->fetch_rows($result,$args);	
@@ -436,7 +436,7 @@ class Services {
 
 //		$user = $this->_app->config('user');
 
-	//	$result = $conn->query("SELECT id, plan, due_date, office_due, active, type, fee, balance_due, last_touched_by, attention, idadvisor, idemployee, stage, data_request, data_received, data_sent, lastadvisorcomments, lastpreparercomments from view_plans WHERE active<>0".
+	//	$result = $conn->query("SELECT id, plan, due_date, office_due, active, type, fee, balance_due, waiting_on, attention, idadvisor, idemployee, stage, data_request, data_received, data_sent, lastadvisorcomments, lastpreparercomments from view_plans WHERE active<>0".
 		//		" AND idemployee=" . $user->getId() . 
 			//	$this->params_to_sql($args,$params));	
 		//return $this->fetch_rows($result,$args);	

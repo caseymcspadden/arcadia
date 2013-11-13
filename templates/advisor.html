@@ -6,9 +6,9 @@
 
 {% block bodyscript %}
 <script>
- require(['views/plans', 'collections/plans', 'text!templates/plans.html' ], function(PlanView, PlanCollection, PlansTemplate){
+ require(['views/advisorplans', 'collections/advisorplans', 'text!templates/plans.html' ], function(AdvisorPlanView, AdvisorPlanCollection, PlansTemplate){
   $(function() {
-  	var collection = new PlanCollection();
+  	var collection = new AdvisorPlanCollection();
   	collection.setDisplayFields([
   	//{field:'doc_count', header:'Docs'},
   	{field:'plan', header:'Plan'},
@@ -17,17 +17,16 @@
   	{field:'office_due', header:'Home Office Due'},
   	{field:'idemployee', header:'Preparer'},
   	{field:'stage', header:'Stage'},
-  	{field:'lastadvisorcomments', header:'Flag'},
   	{field:'lastpreparercomments', header:'Comments'},
-  	{field:'fee', header:'Fee'},
+  	{field:'fee', header:'Fee to Client'},
   	{field:'balance_due', header:'Balance'},
-  	{field:'last_touched_by', header:'Last Touch'},
+  	{field:'waiting_on', header:'Waiting On'},
   	{field:'data_request', header:'Req to Client'},
   	{field:'data_sent', header:'Data to Arcadia'}
   	]); 
     
-    collection.addLookupTableFromArray('plantypes',[{id:1,name:'FAL'},{id:2,name:'Navi'}],'id','name');
-    collection.addLookupTableFromArray('lasttouch',[{id:1,name:'Client'},{id:2,name:'Advisor'},{id:3,name:'Arcadia'}],'id','name');
+    collection.addLookupTableFromArray('plantypes',[{id:1,name:'Letter'},{id:2,name:'NaviPlan'},{id:3,name:'Confident Retirement'}],'id','name');
+    collection.addLookupTableFromArray('parties',[{id:1,name:'Client'},{id:2,name:'Advisor'},{id:3,name:'Arcadia'}],'id','name');
     
   	$.ajax({
   		url: require.toUrl('').replace(/\/js\//,'/api/users'),
@@ -37,7 +36,7 @@
   	}).then($.ajax({url: require.toUrl('').replace(/\/js\//,'/api/stages'),
   		success: function(data) {
   			collection.addLookupTableFromArray('stages',data,'id','name');
-  		  	new PlanView({
+  		  	new AdvisorPlanView({
   		  		name: 'admin_plans',
   		  		collection: collection, 
   		  		template:PlansTemplate,
