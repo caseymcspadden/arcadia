@@ -24,10 +24,8 @@ define([
 	    	return this.lookupTables['lasttouch'][value];
 	    if (key=='lastadvisorcomments')
 	    	return value.length>0 ? 'Y' : '';
-	    if (key=='data_request')
-	    	return value==0 ? '' : 'Y';
-	    if (key=='data_sent')
-	    	return value==0 ? '' : 'Y';
+	    if (key=='data_request' || key=='data_sent')
+	    	return value=='0000-00-00' ? '' : value.dashDateToSlashDate();
 	    if (key=='lastpreparercomments')
 	    {
 	    	var comments = value.split('\n'); 
