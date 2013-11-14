@@ -15,8 +15,6 @@ return Backbone.View.extend({
         
     resizeElement: null,
     
-    dialog: null,
-    
     preferences: preferences,     // Instantiated Preferences Model  
     
 	preferencesView: null,        // preferences view contained in preferences dialog
@@ -24,15 +22,12 @@ return Backbone.View.extend({
     preferencesDialog: null,      // number of days in feed, etc.
     
     displayColumnsDialog: null,   // which columns are hidden
-    
-    today: new Date(),
-    
+        
     name: '',
     
     rowViews: [],
             
     events:{
-    	'change .monitor': 'contentChanged',
     	'click #gridheader table th': 'headerClick',
     	'mousedown #gridheader table th.inner span.resize': 'beginResize',
     	'mouseup #gridheader,#gridbody': 'endResize',
@@ -50,40 +45,6 @@ return Backbone.View.extend({
 		this.$body = this.$el.find('#gridbody tbody');
 		this.$el.append('<input id="edit-text" type="text" class="inline-edit">');
 		this.$el.append('<select id="edit-select" class="inline-edit"></select>');
-
-	 	if (options.dialog!==undefined)
-	 	{
-	 		var def = options.dialog;
-		 	
-	 		this.dialog = this.$el.find(def.id).dialog({
-				title: def.title || '',
-				autoOpen: false,
-				//height: def.height || 250,
-				width: def.width || 350,
-				modal: def.modal===undefined ? true : def.modal,
-				context: this,
-				appendTo: this.el,
-				position: {my:"left top", at:"left bottom", of:(def.newbutton||this.$el)},
-				buttons: {
-					"Submit": function() {
-						var collection = $(this).dialog('option','context').collection;
-						var data = collection.encode($(this).find('form').serializeObject());
-						if (data.id=='0')
-						{
-							delete data.id;
-							collection.create(data);
-						}
-						else
-							collection.get(data.id).save(data);
-							$(this).dialog('close');
-						},
-					"Cancel":  function() {$(this).dialog('close');}
-					}
-			});
-			
-			this.events['click ' + def.newbutton]='newModel';
-			$(def.id + ' .date').datepicker();
-	 	}
     	
     	if (options.displayColumnsButton!==undefined)
 	 	{
@@ -134,7 +95,6 @@ return Backbone.View.extend({
 					"Close":  function() {$(this).dialog('close');}
 					}
 			});
-			console.log(options.preferencesButton);
 			$(options.preferencesButton).click(function(e) {console.log(that);that.preferencesDialog.dialog('open');});
 			this.listenTo( this.preferences, 'change', this.preferencesChanged)
 		}
@@ -147,7 +107,6 @@ return Backbone.View.extend({
 		this.listenTo( this.collection, 'reset', this.renderRows );
 		this.listenTo( this.collection, 'change', this.modelChanged );
 		//this.listenTo( this.collection, 'sort', this.sortRows );
-		this.listenTo( this.collection, 'edit', this.editModel );
 	},
     
 		/*
@@ -177,20 +136,20 @@ return Backbone.View.extend({
 			for (var i=0;i<this.collection.displayFields.length;i++)
 			{
 				var obj = this.collection.displayFields[i];
-				var cls = (i<this.collection.displayFields.length-1 ? 'inner' : 'outer');
-				html += '<th class="' + cls + '" id="h1_' + obj.field + '">' + obj.header + '<span class="sort"></span><span class="CRFloatRight resize"></span></th>';
+				//var cls = (i<this.collection.displayFields.length-1 ? 'inner' : 'outer');
+				html += '<th class="inner" id="h1_' + obj.field + '">' + obj.header + '<span class="sort"></span><span class="CRFloatRight resize"></span></th>';
 			}
-			html += '</tr>';
+			html += '<th class="outer"></th></tr>';
 			this.$head.html(html);
 
  			html='<tr>';
  			for (var i=0;i<this.collection.displayFields.length;i++)
  			{
 				var obj = this.collection.displayFields[i];
-				var cls = (i<this.collection.displayFields.length-1 ? 'inner' : 'outer');
-				html += '<th class="' + cls + '" id="h2_' + obj.field + '"/>';
+				//var cls = (i<this.collection.displayFields.length-1 ? 'inner' : 'outer');
+				html += '<th class="inner" id="h2_' + obj.field + '"/>';
 			}
-			html += '</tr>'
+			html += '<th class="outer"></th></tr>';
 			this.$head2.html( html ); 	  	
 			$('#gridbody').height($(window).height()-220);
     },
@@ -293,32 +252,7 @@ return Backbone.View.extend({
 				e.preventDefault();
 		}
 	},
-	
-	editModel: function(arg)  // arg is an object {element:el , field:field, model:mod, event:e} from collection's "edit" event
-	{
-		console.log(arg);
-		if (this.dialog!==null)
-		{
-			this.dialog.dialog('option','position',{my:'left top', at:'left bottom', of:arg.element});
-			var data = arg.model.toJSON();
-			this.trigger('beginEditing',this.dialog,data,arg.field);
-		}
-	},
-
-	newModel: function(e)
-	{
-		if (this.dialog!==null)
-		{
-			this.trigger('beginEditing',this.dialog,{},'');
-		}
-	},
-	
-	contentChanged: function(e)  // called when
-	{
-		$target = $(e.target);
-		this.trigger('changeDialog',this.dialog,{name:$target.attr('name'), value:$target.val()});
-	},
-	
+		
 	displayColumnsClicked: function()
 	{
 		if (this.displayColumnsDialog!==null)

@@ -7,7 +7,7 @@ return GridView.extend( {
  	{
 	 	this.constructor.__super__.initialize.apply(this, [options]);
 	 	
-	 	this.listenTo(this,'launchDialog',this.launchDialog)
+	 	this.listenTo(this,'beginEditing',this.launchDialog)
 		this.listenTo(this,'changeDialog',this.changeDialog)
  	},
  	

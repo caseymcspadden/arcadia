@@ -44,13 +44,14 @@ define([
     // we use underscore's "<%-" syntax in template to set the contents of the todo item.
     render: function() {
     	var vals = this.model.toJSON();
-			var html='';
-			_.each(this.model.collection.displayFields, function(obj) {
-				html += '<td class="field-' + obj.field +'">' + this.model.collection.translate(obj.field,vals[obj.field]) + '</td>';
-			},this);
-			this.$el.attr('id','row-'+this.model.cid);
-      this.$el.html(html);
-      return this;
+		var html='';
+		_.each(this.model.collection.displayFields, function(obj) {
+				html += '<td id="r-'+this.model.cid+'-f-'+obj.field+'" class="inner">' + this.model.collection.translate(obj.field,vals[obj.field]) + '</td>';
+		},this);
+	   html += '<td class="outer"></td>';
+	   this.$el.attr('id','row-'+this.model.cid);
+       this.$el.html(html);
+       return this;
       //this.$el.html(this.template(this.model.toJSON()));
       //this.cacheInput();
     },
@@ -66,7 +67,8 @@ define([
 		//this.$editElement.on('keypress',{context:this},this.updateOnEnter);
 		//this.$editElement.on('blur',{context:this},this.doneEditing);
 		//console.log($('#edit-text'));
-		this.model.trigger('edit',{model:this.model, field:$(e.target).attr('class').substr(6), event:e, element:$(e.target)});
+		var str = $(e.target).attr('id');
+		this.model.trigger('edit',{model:this.model, field:str.substr(str.indexOf('f-')+2), event:e, element:$(e.target)});
 	},
    
     mouseEnter: function(e)
