@@ -7,6 +7,8 @@ define([
 
     //... is a list tag.
     tagName:  'tr',
+    
+    $editElement: null,
         
     // The DOM events specific to an item.
 		/*
@@ -22,6 +24,8 @@ define([
 		'mouseenter' : 'mouseEnter',
 		'mouseleave' : 'mouseLeave',
 		'click' : 'click'
+		//'keypress .edit': 'updateOnEnter',
+    //'blur .edit': 'doneEditing'
 	},
 		
     // The TodoView listens for changes to its model, re-rendering. Since there's
@@ -53,7 +57,15 @@ define([
 
 	click: function(e)
 	{
-		console.log(e);
+		//this.doneEditing();
+		//$e = $(e.target);
+		///this.$editElement = $('#edit-text');
+		//$('#edit-text').css('width',''+$e.width()+'px').css('height',''+$e.height()+'px');
+		//this.$editElement.addClass('editing').width($e.width()).height($e.height()).position({my:'left top', at:'left top', of:$e}).val($e.html());
+		//$('#edit-text').addClass('editing');
+		//this.$editElement.on('keypress',{context:this},this.updateOnEnter);
+		//this.$editElement.on('blur',{context:this},this.doneEditing);
+		//console.log($('#edit-text'));
 		this.model.trigger('edit',{model:this.model, field:$(e.target).attr('class').substr(6), event:e, element:this.$el});
 	},
    
@@ -78,7 +90,21 @@ define([
     // Remove the item, destroy the model.
     clear: function() {
       this.model.clear();
-    }
-
-  });
+    },
+    
+    doneEditing: function() {
+	    if (this.$editElement !== null)
+	    {
+	    	console.log("done editing");
+	    	this.$editElement.removeClass('editing').off('keypress').off('blur');
+	    }
+	    this.$editElement = null;
+    },
+    
+    updateOnEnter: function( e ) {
+      if ( e.which === 13 ) {
+        e.data.context.doneEditing();
+      }
+     }   
+   });
 });

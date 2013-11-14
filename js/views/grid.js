@@ -8,6 +8,8 @@ return Backbone.View.extend({
     $head: null,
     
     $body: null,
+    
+    $editText: null,
  
     sortHeader: null,
         
@@ -46,6 +48,8 @@ return Backbone.View.extend({
 		this.$head = this.$el.find('#gridheader thead');
 		this.$head2 = this.$el.find('#gridbody thead');
 		this.$body = this.$el.find('#gridbody tbody');
+		this.$el.append('<input id="edit-text" type="text" class="inline-edit">');
+		this.$el.append('<select id="edit-select" class="inline-edit editing"></select>');
 
 	 	if (options.dialog!==undefined)
 	 	{
