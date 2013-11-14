@@ -41,7 +41,7 @@ $app->map('/' , function() use ($app) {
 	if ($app->config('user')->isLoggedIn())
 	{
 		if ($app->config('user')->isAdmin())
-			$app->redirect($app->config('docroot').'/admin/feed');
+			$app->redirect($app->config('docroot').'/admin/plans');
 		else if ($app->config('user')->isEmployee())
 			$app->redirect($app->config('docroot').'/preparer');
 		else if ($app->config('user')->isAdvisor())

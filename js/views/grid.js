@@ -168,7 +168,7 @@ return Backbone.View.extend({
 
     render: function() {
     	this.renderHead();
-			this.renderRows();
+		this.renderRows();
 	},
      
     renderHead: function()
@@ -192,6 +192,7 @@ return Backbone.View.extend({
 			}
 			html += '</tr>'
 			this.$head2.html( html ); 	  	
+			$('#gridbody').height($(window).height()-220);
     },
 
     sortRows: function(item)
@@ -206,10 +207,10 @@ return Backbone.View.extend({
     	})
     	this.rowViews = [];
     	
-			this.collection.each(function( item ) {
+		this.collection.each(function( item ) {
       	this.renderRow( item );
 			}, this );
-			this.setColumnVisibility();
+		this.setColumnVisibility();
     },
     
     preferencesChanged: function()
@@ -228,29 +229,6 @@ return Backbone.View.extend({
 			$row.find('td.field-'+name).addClass('CRHidden');
 		},this);   	
 	}, 
-
-		/*
-    addModel: function(item) {
-        var rowView = new RowView({
-            model: item
-        });
-        this.$body.prepend( rowView.render().el );
-        
-        this.setColumnVisibility();
-        
-        var $row = this.$body.find('#row-' + item.cid);
-        
-				var hidden = $.cookie(this.name)===undefined ? [] : $.cookie(this.name).split('.');
-				
-				
-				_.each(hidden,function(name) {
-					//this.$el.find('#row-'+item.cid+' td.field-'+name).addClass('CRHidden');
-					this.$el.find('td.field-'+name).addClass('CRHidden');
-					console.log(this.$el.find('#row-'+item.cid+' td.field-'+name));
-				},this);
-				
-    },
-		*/
 		
     renderRow: function( item ) {
         var rowView = new RowView({
@@ -258,6 +236,7 @@ return Backbone.View.extend({
         });
         this.rowViews.push(rowView);
         this.$body.append( rowView.render().el );
+        //$('#gridbody').height($(window).height()-220);
     },
     
     headerClick: function(e)
@@ -317,11 +296,12 @@ return Backbone.View.extend({
 	
 	editModel: function(arg)  // arg is an object {element:el , field:field, model:mod, event:e} from collection's "edit" event
 	{
+		console.log(arg);
 		if (this.dialog!==null)
 		{
 			this.dialog.dialog('option','position',{my:'left top', at:'left bottom', of:arg.element});
 			var data = arg.model.toJSON();
-			this.trigger('launchDialog',this.dialog,data,arg.field);
+			this.trigger('beginEditing',this.dialog,data,arg.field);
 		}
 	},
 
@@ -329,7 +309,7 @@ return Backbone.View.extend({
 	{
 		if (this.dialog!==null)
 		{
-			this.trigger('launchDialog',this.dialog,{},'');
+			this.trigger('beginEditing',this.dialog,{},'');
 		}
 	},
 	

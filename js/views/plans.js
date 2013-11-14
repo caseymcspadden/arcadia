@@ -14,7 +14,7 @@ return GridView.extend( {
  	actions: null,
  	
  	users: null,
- 	 	 	
+ 	
  	allowedactions: {
 		0:[1],
 		1:[1],
@@ -26,7 +26,7 @@ return GridView.extend( {
 		127:[23,22,21,200,201,202,203,210,211,212]
 	},
 	
-	hintactions: {'due_date':202,'office_due':210,'idadvisor':201,'idemployee':200,'plan':203,'type':211},
+	hintactions: {'plan':203,'type':211,'due_date':202,'office_due':210,'idadvisor':201,'idemployee':200},
 	
 	actionstages: {0:2, 1:2, 11:3, 12:4, 13:5, 21:2, 22:3, 23:4, 126:126, 127:127},
 
@@ -34,7 +34,7 @@ return GridView.extend( {
  	{
 	 	this.constructor.__super__.initialize.apply(this, [options]);
 	 	
-	 	this.listenTo(this,'launchDialog',this.launchDialog)
+	 	this.listenTo(this,'beginEditing',this.beginEditing)
 		this.listenTo(this,'changeDialog',this.changeDialog)
  	},
  	
@@ -47,7 +47,7 @@ return GridView.extend( {
 	    },this);
  	},
  	
- 	launchDialog: function($dialog,data,field)
+ 	beginEditing: function($dialog,data,field)
  	{
  		if (this.actions===null)
  		{

@@ -66,7 +66,7 @@ define([
 		//this.$editElement.on('keypress',{context:this},this.updateOnEnter);
 		//this.$editElement.on('blur',{context:this},this.doneEditing);
 		//console.log($('#edit-text'));
-		this.model.trigger('edit',{model:this.model, field:$(e.target).attr('class').substr(6), event:e, element:this.$el});
+		this.model.trigger('edit',{model:this.model, field:$(e.target).attr('class').substr(6), event:e, element:$(e.target)});
 	},
    
     mouseEnter: function(e)

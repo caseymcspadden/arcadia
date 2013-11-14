@@ -49,11 +49,14 @@
 <script data-main="{{docroot}}/js/main.js" src="{{docroot}}/js/libs/require/require.js"></script>
 <script>
 require(['jquery'], function($) {
-$(document).ready(function() {
+$(function() {
 	$('div.body,#CRBody').width($(window).width()-80);
+	//$('#gridbody').css('height',''+($(window).height()-220)+'px');
+	$('#gridbody').height($(window).height()-220);
 	
 	$(window).resize(function() {
 		$('div.body,#CRBody').width($(window).width()-80);
+		$('#gridbody').height($(window).height()-220);
 	});
 });
 });
