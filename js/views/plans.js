@@ -93,6 +93,7 @@ return GridView.extend( {
 	 	if (data.idadvisor) $form.find('[name=idadvisor]').val(data.idadvisor);
 	 	if (data.idemployee) $form.find('[name=idemployee]').val(data.idemployee);
 	 	
+	 	$dialog.dialog('option','title',data.plan);
 	 	$dialog.dialog('open');
 	 	this.changeDialog($dialog,{name:'idaction',value:action});
 	},

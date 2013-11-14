@@ -47,8 +47,19 @@
 </script>
 <script src="{{docroot}}/js/util/proto.js"></script>
 <script data-main="{{docroot}}/js/main.js" src="{{docroot}}/js/libs/require/require.js"></script>
-	{% block headscript %}
-	{% endblock %}
+<script>
+require(['jquery'], function($) {
+$(document).ready(function() {
+	$('div.body,#CRBody').width($(window).width()-80);
+	
+	$(window).resize(function() {
+		$('div.body,#CRBody').width($(window).width()-80);
+	});
+});
+});
+</script>
+{% block headscript %}
+{% endblock %}
 </head>
 <body class="claro">
 <div class="body">

@@ -49,7 +49,7 @@ return Backbone.View.extend({
 		this.$head2 = this.$el.find('#gridbody thead');
 		this.$body = this.$el.find('#gridbody tbody');
 		this.$el.append('<input id="edit-text" type="text" class="inline-edit">');
-		this.$el.append('<select id="edit-select" class="inline-edit editing"></select>');
+		this.$el.append('<select id="edit-select" class="inline-edit"></select>');
 
 	 	if (options.dialog!==undefined)
 	 	{
